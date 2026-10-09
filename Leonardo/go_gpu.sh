@@ -8,6 +8,7 @@
 #SBATCH --output=test.out
 #SBATCH --error=test.err
 #SBATCH --partition=boost_usr_prod
+#SBATCH --qos=boost_qos_dbg   ## debug QOS: max 8 nodes, 30 min
 
 # to avoid perl warning
 export LC_CTYPE=en_US.UTF-8

@@ -40,7 +40,7 @@ end
 ! x-z to x-y pencils (direction 0, nzcpu ranks with the same y coordinate), gny x gnz grid
 ! wa: y complete, z split -> uc: z complete, y split
 ! Buffers bufs/bufr come from module a2a_buffers (allocated once).
-! All the blocks are packed with one kernel, exchanged with one mpi_alltoall on cart_comm_dir(0)
+! All the blocks are packed with one kernel, exchanged with non-blocking messages on cart_comm_dir(0)
 ! and unpacked with one kernel. Blocks have the padded size ngxx*ngzz*ngyy*2 as in the previous
 ! pairwise exchange; block j goes to / comes from the rank with z coordinate j.
 subroutine xz2xy_a2a(wa,uc,ngxx,nsxx,ngyy,npyy,ngzz,npzz,gny,gnz,bufs,bufr)
@@ -49,6 +49,7 @@ use mpi
 use commondata
 
 integer :: nsxx,npyy,npzz,ngxx,ngyy,ngzz,gny,gnz
+integer :: me,nreq,req(2*nzcpu)
 integer :: i,ky,kz,c,j,ry,rz,numel,i0,cnt
 double precision :: uc(nsxx,gnz,npyy,2),wa(nsxx,npzz,gny,2)
 double precision :: bufs(ngxx,ngzz,ngyy,2,0:nzcpu-1),bufr(ngxx,ngzz,ngyy,2,0:nzcpu-1)
@@ -79,9 +80,27 @@ do j=0,nzcpu-1
  enddo
 enddo
 
+! exchange with all the other ranks of cart_comm_dir(0) at once: all the receives and sends
+! are posted together (no sequential rounds); the own block (j=me) is not sent, the unpack
+! kernel takes it directly from bufs. Point-to-point instead of mpi_alltoall: the collective
+! would copy the own block (and possibly stage blocks) on the host with managed memory.
+call mpi_comm_rank(cart_comm_dir(0),me,ierr)
+nreq=0
 !CUDA-aware MPI GPU-GPU communicaton (by default hpc-sdk is CUDA-aware)
 !$acc host_data use_device(bufs,bufr)
-call mpi_alltoall(bufs,numel,mpi_double_precision,bufr,numel,mpi_double_precision,cart_comm_dir(0),ierr)
+do j=0,nzcpu-1
+ if(j.ne.me)then
+  nreq=nreq+1
+  call mpi_irecv(bufr(1,1,1,1,j),numel,mpi_double_precision,j,0,cart_comm_dir(0),req(nreq),ierr)
+ endif
+enddo
+do j=0,nzcpu-1
+ if(j.ne.me)then
+  nreq=nreq+1
+  call mpi_isend(bufs(1,1,1,1,j),numel,mpi_double_precision,j,0,cart_comm_dir(0),req(nreq),ierr)
+ endif
+enddo
+call mpi_waitall(nreq,req,mpi_statuses_ignore,ierr)
 !$acc end host_data
 
 ! unpack: block j holds the local y points with the z slab of rank j (offset i0, cnt points)
@@ -98,7 +117,13 @@ do j=0,nzcpu-1
       i0=(j-rz)*(ngzz-1)+rz*ngzz
       cnt=ngzz-1
      endif
-     if(kz.le.cnt) uc(i,i0+kz,ky,c)=bufr(i,kz,ky,c,j)
+     if(kz.le.cnt)then
+      if(j.eq.me)then
+       uc(i,i0+kz,ky,c)=bufs(i,kz,ky,c,j)
+      else
+       uc(i,i0+kz,ky,c)=bufr(i,kz,ky,c,j)
+      endif
+     endif
     enddo
    enddo
   enddo

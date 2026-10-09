@@ -17,6 +17,11 @@ module purge
 module load nvhpc/23.1
 module load openmpi/4.1.4--nvhpc--23.1-cuda-11.8
 
+# the code uses paths relative to set_run (./sc_compiled, ./results, ./initial_fields):
+# run from set_run, also when the job is submitted from the main folder (sbatch set_run/go.sh)
+cd "${SLURM_SUBMIT_DIR:-.}"
+if [ -d ./set_run/sc_compiled ]; then cd ./set_run; fi
+
 #if using HPC-SDK, CUDA-aware already enabled):
 mpirun -n NUMTASKS --map-by socket ./sc_compiled/flow36
 

@@ -34,11 +34,17 @@ chmod +x ./binder_leo.sh
 # PROFILE=1: profile every rank with nsys from nvhpc/25.11, one report per rank (report_<rank>.nsys-rep)
 PROFILE=0
 
+# MPI over UCX only (InfiniBand + GPUDirect RDMA): if UCX cannot start, the run stops with an
+# error instead of silently falling back to TCP (ob1/tcp, ~0.3 GB/s between nodes)
+MPIOPT="--mca pml ucx"
+# print the UCX protocols selected for each message size (transport, GPUDirect or staging)
+#export UCX_PROTO_INFO=y
+
 if [ "$PROFILE" == "1" ]; then
   # the binder sets UCX_NET_DEVICES and then starts nsys, which profiles flow36 directly
-  mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./sc_compiled/flow36
+  mpirun -n NUMTASKS --map-by ppr:4:node $MPIOPT ./binder_leo.sh nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./sc_compiled/flow36
 else
-  mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh ./sc_compiled/flow36
+  mpirun -n NUMTASKS --map-by ppr:4:node $MPIOPT ./binder_leo.sh ./sc_compiled/flow36
 fi
 
 # submit script with sbatch

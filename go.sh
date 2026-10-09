@@ -35,7 +35,8 @@ chmod +x ./binder_leo.sh
 PROFILE=0
 
 if [ "$PROFILE" == "1" ]; then
-  mpirun -n NUMTASKS --map-by ppr:4:node nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./binder_leo.sh ./sc_compiled/flow36
+  # the binder sets UCX_NET_DEVICES and then starts nsys, which profiles flow36 directly
+  mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./sc_compiled/flow36
 else
   mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh ./sc_compiled/flow36
 fi

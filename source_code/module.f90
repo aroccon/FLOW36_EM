@@ -232,6 +232,18 @@ contains
   endif
   allocate(a2a_send(n),a2a_recv(n))
  end subroutine a2a_reserve
+
+ ! persistent work array of the transforms (spectral_to_phys/phys_to_spectral): allocated on the
+ ! first call, reallocated only if the requested shape changes (managed memory)
+ subroutine stage_alloc(a,n1,n2,n3)
+  double precision, allocatable, intent(inout) :: a(:,:,:,:)
+  integer, intent(in) :: n1,n2,n3
+  if(allocated(a))then
+   if(size(a,1).eq.n1 .and. size(a,2).eq.n2 .and. size(a,3).eq.n3) return
+   deallocate(a)
+  endif
+  allocate(a(n1,n2,n3,2))
+ end subroutine stage_alloc
 end module a2a_buffers
 
 

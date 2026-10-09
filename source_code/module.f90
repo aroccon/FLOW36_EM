@@ -216,7 +216,13 @@ end module comm_pattern
 ! first-touch page faults or device synchronization at every transpose (managed memory)
 module a2a_buffers
  implicit none
+ ! GPU build (-cuda): device memory (cudaMalloc), not managed, so the network card can access it
+ ! directly (GPUDirect RDMA); CPU builds: ordinary arrays
+#ifdef _CUDA
+ double precision, device, allocatable :: a2a_send(:), a2a_recv(:)
+#else
  double precision, allocatable :: a2a_send(:), a2a_recv(:)
+#endif
 contains
  subroutine a2a_reserve(n)
   integer(kind=8), intent(in) :: n

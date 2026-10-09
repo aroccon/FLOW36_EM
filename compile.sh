@@ -413,7 +413,7 @@ exp_z="1" # integer, (2**iz)*exp_z+1
 
 # parallelization strategy
 NYCPU="4" # integer
-NZCPU="1" # integer
+NZCPU="2" # integer
 # running on single shared memory environment (0) or on many (1)
 multinode="0" # integer
 # number of MPI processes per node

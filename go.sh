@@ -2,7 +2,7 @@
 #SBATCH --account="IscrB_BMO"
 #SBATCH --job-name="flo36gpu_test"
 #SBATCH --time=00:05:00
-#SBATCH --nodes=1      ##adjust
+#SBATCH --ntasks=NUMTASKS   ## total MPI tasks = NYCPU*NZCPU (set by compile.sh), nodes = ntasks/4
 #SBATCH --ntasks-per-node=4
 #SBATCH --gres=gpu:4   ###4 GPUs per node on 4 MPI tasks
 #SBATCH --output=test.out
@@ -23,6 +23,8 @@ cd "${SLURM_SUBMIT_DIR:-.}"
 if [ -d ./set_run/sc_compiled ]; then cd ./set_run; fi
 
 #if using HPC-SDK, CUDA-aware already enabled):
-mpirun -n NUMTASKS --map-by socket ./sc_compiled/flow36
+# 4 consecutive ranks per node (one y-group with NYCPU=4: xz2yz/yz2xz stay on NVLink);
+# each rank uses the InfiniBand card of its GPU (mlx5_<local rank>)
+mpirun -n NUMTASKS --map-by ppr:4:node bash -c 'export UCX_NET_DEVICES=mlx5_${OMPI_COMM_WORLD_LOCAL_RANK}:1; exec ./sc_compiled/flow36'
 
 # submit script with sbatch

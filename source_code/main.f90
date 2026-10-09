@@ -19,6 +19,10 @@ use comm_pattern
 ! NVTX ranges for profiling (nsys): one range per time step
 use nvtx
 #endif
+#ifdef _CUDA
+! GPU memory report after the first time step (cudaMemGetInfo)
+use cudafor
+#endif
 
 #define machine machineflag
 #define openaccflag openacccompflag
@@ -48,6 +52,11 @@ integer :: cysize(nzcpu),cxsize(nycpu)
 integer :: local_comm
 integer :: rank_dir0,rank_dir1
 character(len=16) :: nvtx_label
+#ifdef _CUDA
+integer(kind=cuda_count_kind) :: gpu_free,gpu_total
+integer :: gpu_istat
+double precision :: gpu_used,gpu_used_max
+#endif
 integer :: numdevices, devicenum
 
 double precision :: stime,etime,dtime,mtime,gstime,getime,time
@@ -383,6 +392,17 @@ call sim_check(i,int_1)
 !      call write_time(string,mtime)
 !    endif
      if(rank.eq.0) call write_time(string,dtime)
+
+#ifdef _CUDA
+    ! GPU memory in use after the first time step (all work arrays allocated): max over the ranks
+    if(i.eq.nstart+1)then
+      gpu_istat=cudaMemGetInfo(gpu_free,gpu_total)
+      gpu_used=dble(gpu_total-gpu_free)/1024.0d0**3
+      call mpi_reduce(gpu_used,gpu_used_max,1,mpi_double_precision,mpi_max,0,flow_comm,ierr)
+      if(rank.eq.0) write(*,'(1x,a,f8.2,a,f8.2,a)') 'GPU memory in use (max over ranks): ',gpu_used_max, &
+                                                  ' GB of ',dble(gpu_total)/1024.0d0**3,' GB'
+    endif
+#endif
 
 
     ! write temporary output files from which the simulation can be restarted if it crashes or stops

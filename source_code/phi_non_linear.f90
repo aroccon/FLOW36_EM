@@ -252,6 +252,7 @@ allocate(a6(spx,nz,spy,2))
 
 call dz(uc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -271,6 +272,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -289,6 +291,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -323,6 +326,7 @@ allocate(a6(spx,nz,spy,2))
 
 call dz(vc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -342,6 +346,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -359,6 +364,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -394,6 +400,7 @@ call dz(uc,a4)
 call dz(vc,a5)
 call dz(wc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -411,6 +418,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -428,6 +436,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -461,6 +470,7 @@ deallocate(a4f,a5f,a6f)
  
  call dz(uc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -480,6 +490,7 @@ deallocate(a4f,a5f,a6f)
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -497,6 +508,7 @@ deallocate(a4f,a5f,a6f)
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -531,6 +543,7 @@ deallocate(a4f,a5f,a6f)
  
  call dz(vc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -550,6 +563,7 @@ deallocate(a4f,a5f,a6f)
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -567,6 +581,7 @@ deallocate(a4f,a5f,a6f)
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -603,6 +618,7 @@ deallocate(a4f,a5f,a6f)
  call dz(vc,a5)
  call dz(wc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -620,6 +636,7 @@ deallocate(a4f,a5f,a6f)
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -637,6 +654,7 @@ deallocate(a4f,a5f,a6f)
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -676,6 +694,7 @@ if (visr .le. xo) then
  
  call dz(uc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -695,6 +714,7 @@ if (visr .le. xo) then
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -713,6 +733,7 @@ if (visr .le. xo) then
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -746,6 +767,7 @@ if (visr .le. xo) then
  
  call dz(vc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -765,6 +787,7 @@ if (visr .le. xo) then
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -782,6 +805,7 @@ if (visr .le. xo) then
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -816,6 +840,7 @@ if (visr .le. xo) then
  call dz(vc,a5)
  call dz(wc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -833,6 +858,7 @@ if (visr .le. xo) then
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -850,6 +876,7 @@ if (visr .le. xo) then
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -892,6 +919,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    call dz(uc,a6)
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -911,6 +939,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    call spectral_to_phys(a5,a5f,0)
    call spectral_to_phys(a6,a6f,0)
    
+   !$acc parallel loop collapse(3)
    do j=1,fpy
      do k=1,fpz
        do i=1,nx
@@ -929,6 +958,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    allocate(a7(spx,nz,spy,2))
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -962,6 +992,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    call dz(vc,a6)
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -981,6 +1012,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    call spectral_to_phys(a5,a5f,0)
    call spectral_to_phys(a6,a6f,0)
    
+   !$acc parallel loop collapse(3)
    do j=1,fpy
      do k=1,fpz
        do i=1,nx
@@ -998,6 +1030,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    allocate(a7(spx,nz,spy,2))
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1032,6 +1065,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    call dz(vc,a5)
    call dz(wc,a6)
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -1049,6 +1083,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    call spectral_to_phys(a5,a5f,0)
    call spectral_to_phys(a6,a6f,0)
    
+   !$acc parallel loop collapse(3)
    do j=1,fpy
      do k=1,fpz
        do i=1,nx
@@ -1066,6 +1101,7 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    allocate(a7(spx,nz,spy,2))
    
+   !$acc parallel loop collapse(2)
    do j=1,spy
      do i=1,spx
        a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1112,6 +1148,7 @@ endif
  
  call dz(uc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -1131,6 +1168,7 @@ endif
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1148,6 +1186,7 @@ endif
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1182,6 +1221,7 @@ endif
  
  call dz(vc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -1201,6 +1241,7 @@ endif
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1218,6 +1259,7 @@ endif
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1254,6 +1296,7 @@ endif
  call dz(vc,a5)
  call dz(wc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -1271,6 +1314,7 @@ endif
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1288,6 +1332,7 @@ endif
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1326,6 +1371,7 @@ endif
  
  call dz(uc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -1345,6 +1391,7 @@ endif
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1363,6 +1410,7 @@ endif
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1403,6 +1451,7 @@ if (rank.eq.0)then
  
  call dz(vc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -1422,6 +1471,7 @@ if (rank.eq.0)then
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1439,6 +1489,7 @@ if (rank.eq.0)then
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1473,6 +1524,7 @@ if (rank.eq.0)then
  call dz(vc,a5)
  call dz(wc,a6)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -1490,6 +1542,7 @@ if (rank.eq.0)then
  call spectral_to_phys(a5,a5f,0)
  call spectral_to_phys(a6,a6f,0)
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -1507,6 +1560,7 @@ if (rank.eq.0)then
  
  allocate(a7(spx,nz,spy,2))
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1541,6 +1595,7 @@ allocate(a6(spx,nz,spy,2))
 
 call dz(uc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-kx(i+cstart(1))*uc(i,:,j,2)
@@ -1560,6 +1615,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1577,6 +1633,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1611,6 +1668,7 @@ allocate(a6(spx,nz,spy,2))
 
 call dz(vc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-ky(j+cstart(3))*uc(i,:,j,2)-kx(i+cstart(1))*vc(i,:,j,2)
@@ -1630,6 +1688,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1647,6 +1706,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1683,6 +1743,7 @@ call dz(uc,a4)
 call dz(vc,a5)
 call dz(wc,a6)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=a4(i,:,j,1)-kx(i+cstart(1))*wc(i,:,j,2)
@@ -1700,6 +1761,7 @@ call spectral_to_phys(a4,a4f,0)
 call spectral_to_phys(a5,a5f,0)
 call spectral_to_phys(a6,a6f,0)
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1717,6 +1779,7 @@ call phys_to_spectral(a6f,a6,0)
 
 allocate(a7(spx,nz,spy,2))
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1772,6 +1835,7 @@ call dz(vc,a8)
 call dz(wc,a9)
 
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-kx(i+cstart(1))*2d0*uc(i,:,j,2)
@@ -1808,6 +1872,7 @@ deallocate(a4,a5,a6,a7,a8,a9)
 allocate(viscnon(nx,fpz,fpy))
 
 !computing the viscosity map (Carreau model)
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1828,6 +1893,7 @@ allocate(a10f(nx,fpz,fpy))
 allocate(a11f(nx,fpz,fpy))
 allocate(a12f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1850,6 +1916,7 @@ call phys_to_spectral(a10f,a4,0)
 call phys_to_spectral(a11f,a5,0)
 call phys_to_spectral(a12f,a6,0)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1871,6 +1938,7 @@ s1=s1+1.0d0/(re)*(a4+a7)
 !!!!!!! second row
 !!!!!!!!!!!!!!
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1888,6 +1956,7 @@ call phys_to_spectral(a10f,a4,0)
 call phys_to_spectral(a11f,a5,0)
 call phys_to_spectral(a12f,a6,0)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1908,6 +1977,7 @@ s2=s2+1.0d0/(re)*(a4+a7)
 ! third row
 !!!!!!!!!!!!!!
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -1927,6 +1997,7 @@ call phys_to_spectral(a12f,a6,0)
 
 deallocate(a10f,a11f,a12f)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -1964,6 +2035,7 @@ call dz(vc,a8)
 call dz(wc,a9)
 
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a4(i,:,j,1)=-kx(i+cstart(1))*2d0*uc(i,:,j,2)
@@ -2000,6 +2072,7 @@ deallocate(a4,a5,a6,a7,a8,a9)
 allocate(viscnon(nx,fpz,fpy))
 
 !computing the viscosity map (Carreau model)
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2020,6 +2093,7 @@ allocate(a10f(nx,fpz,fpy))
 allocate(a11f(nx,fpz,fpy))
 allocate(a12f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2042,6 +2116,7 @@ call phys_to_spectral(a10f,a4,0)
 call phys_to_spectral(a11f,a5,0)
 call phys_to_spectral(a12f,a6,0)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2063,6 +2138,7 @@ s1=s1+visr*(a4+a7)/re
 !!!!!!! second row
 !!!!!!!!!!!!!!
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2080,6 +2156,7 @@ call phys_to_spectral(a10f,a4,0)
 call phys_to_spectral(a11f,a5,0)
 call phys_to_spectral(a12f,a6,0)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2099,6 +2176,7 @@ s2=s2+visr*(a4+a7)/re
 ! third row
 !!!!!!!!!!!!!!
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2118,6 +2196,7 @@ call phys_to_spectral(a12f,a6,0)
 
 deallocate(a10f,a11f,a12f)
 
+!$acc parallel loop collapse(2)
 do j=1,spy
   do i=1,spx
     a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2155,6 +2234,7 @@ deallocate(a4,a5,a6,a7)
  call dz(wc,a9)
  
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*2d0*uc(i,:,j,2)
@@ -2191,6 +2271,7 @@ deallocate(a4,a5,a6,a7)
  allocate(viscnon(nx,fpz,fpy))
  
  !computing the viscosity map (Carreau model)
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2211,6 +2292,7 @@ deallocate(a4,a5,a6,a7)
  allocate(a11f(nx,fpz,fpy))
  allocate(a12f(nx,fpz,fpy))
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2233,6 +2315,7 @@ deallocate(a4,a5,a6,a7)
  call phys_to_spectral(a11f,a5,0)
  call phys_to_spectral(a12f,a6,0)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2254,6 +2337,7 @@ deallocate(a4,a5,a6,a7)
  !!!!!!! second row
  !!!!!!!!!!!!!!
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2271,6 +2355,7 @@ deallocate(a4,a5,a6,a7)
  call phys_to_spectral(a11f,a5,0)
  call phys_to_spectral(a12f,a6,0)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2290,6 +2375,7 @@ deallocate(a4,a5,a6,a7)
  ! third row
  !!!!!!!!!!!!!!
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2309,6 +2395,7 @@ deallocate(a4,a5,a6,a7)
  
  deallocate(a10f,a11f,a12f)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2346,6 +2433,7 @@ deallocate(a4,a5,a6,a7)
  call dz(wc,a9)
  
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a4(i,:,j,1)=-kx(i+cstart(1))*2d0*uc(i,:,j,2)
@@ -2382,6 +2470,7 @@ deallocate(a4,a5,a6,a7)
  allocate(viscnon(nx,fpz,fpy))
  
  !computing the viscosity map (Carreau model)
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2402,6 +2491,7 @@ deallocate(a4,a5,a6,a7)
  allocate(a11f(nx,fpz,fpy))
  allocate(a12f(nx,fpz,fpy))
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2424,6 +2514,7 @@ deallocate(a4,a5,a6,a7)
  call phys_to_spectral(a11f,a5,0)
  call phys_to_spectral(a12f,a6,0)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2445,6 +2536,7 @@ deallocate(a4,a5,a6,a7)
  !!!!!!! second row
  !!!!!!!!!!!!!!
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2462,6 +2554,7 @@ deallocate(a4,a5,a6,a7)
  call phys_to_spectral(a11f,a5,0)
  call phys_to_spectral(a12f,a6,0)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2481,6 +2574,7 @@ deallocate(a4,a5,a6,a7)
  ! third row
  !!!!!!!!!!!!!!
  
+ !$acc parallel loop collapse(3)
  do j=1,fpy
    do k=1,fpz
      do i=1,nx
@@ -2500,6 +2594,7 @@ deallocate(a4,a5,a6,a7)
  
  deallocate(a10f,a11f,a12f)
  
+ !$acc parallel loop collapse(2)
  do j=1,spy
    do i=1,spx
      a7(i,:,j,1)=-kx(i+cstart(1))*a4(i,:,j,2)-ky(j+cstart(3))*a5(i,:,j,2)
@@ -2536,6 +2631,7 @@ deallocate(a4,a5,a6,a7)
 ! S term order is S1:x, S2:y, S3:z
 allocate(a4f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2564,6 +2660,7 @@ deallocate(a4)
 ! S term order is S1:x, S2:y, S3:z
 allocate(a4f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2598,6 +2695,7 @@ deallocate(a4)
 ! S term order is S1:x, S2:y, S3:z
 allocate(a4f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2626,6 +2724,7 @@ deallocate(a4)
 ! S term order is S1:x, S2:y, S3:z
 allocate(a4f(nx,fpz,fpy))
 
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2665,6 +2764,7 @@ call spectral_to_phys(vc-vcp,a5f,1)
 call spectral_to_phys(wc-wcp,a6f,1)
 
 #if match_dens == 0
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx
@@ -2677,6 +2777,7 @@ do j=1,fpy
   enddo
 enddo
 #elif match_dens == 2
+!$acc parallel loop collapse(3)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx

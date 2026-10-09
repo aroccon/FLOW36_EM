@@ -8,10 +8,9 @@ subroutine calculate_pol(hconfxx,hconfxy,hconfxz,hconfyy,hconfyz,hconfzz)
   use velocity
   
   double precision, dimension(spx,spy) :: beta2c
-  double precision, dimension(2) :: s_bc
-  double precision, dimension(nz) :: s_force
+  double precision, allocatable :: r1(:,:,:),r2(:,:,:)
   double precision,intent(inout), dimension(spx,nz,spy,2) :: hconfxx,hconfxy,hconfxz,hconfyy,hconfyz,hconfzz  
-  integer :: i,j,indx,indy
+  integer :: i,j,c,indx,indy
 
   indx=cstart(1)
   indy=cstart(3)
@@ -40,87 +39,81 @@ subroutine calculate_pol(hconfxx,hconfxy,hconfxz,hconfyy,hconfyz,hconfzz)
   ! keep in mind that diffusion is applied for the real and the immaginary part 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  ! one solve per tensor component for all the (i,j) columns and both real/imaginary parts
+  ! (helmholtz_cols, one GPU kernel) instead of a host loop over the columns calling
+  ! helmholtz_rred: same algorithm, operations and boundary values, bitwise identical on CPU.
+  ! r1: boundary value at z(1)=+1 (bc_c..(i,nz,j,c)), r2: at z(2)=-1 (sIdiag for the diagonal
+  ! components, 0 otherwise)
+  allocate(r1(spx,spy,2),r2(spx,spy,2))
+  !!!!!!!!!!!!!!! Cxx
+  !$acc parallel loop collapse(3)
+  do c=1,2
    do j=1,spy
-    do i=1,spx 
-      !!!!!!!!!!!!!!! Cxx
-      s_force=hconfxx(i,:,j,1)
-      s_bc(1)=bc_cxx(i,nz,j,1)
-                                   !s_bc(2)=bc_cxx(i,1,j,1)
-      s_bc(2)=sIdiag(i,1,j,1)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxx(i,:,j,1)=s_force
-      s_force=hconfxx(i,:,j,2)
-      s_bc(1)=bc_cxx(i,nz,j,2)
-                                    !s_bc(2)=bc_cxx(i,1,j,2)
-      s_bc(2)=sIdiag(i,1,j,2)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxx(i,:,j,2)=s_force
-      !!!!!!!!!!!!!!! Cxy
-      s_force=hconfxy(i,:,j,1)
-      s_bc(1)=bc_cxy(i,nz,j,1)
-                                    !s_bc(2)=bc_cxy(i,1,j,1)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxy(i,:,j,1)=s_force
-      s_force=hconfxy(i,:,j,2)
-      s_bc(1)=bc_cxy(i,nz,j,2)
-                                     !s_bc(2)=bc_cxy(i,1,j,2)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxy(i,:,j,2)=s_force
-      !!!!!!!!!!!!!!! Cxz
-      s_force=hconfxz(i,:,j,1)
-      s_bc(1)=bc_cxz(i,nz,j,1)
-                                     !s_bc(2)=bc_cxz(i,1,j,1)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxz(i,:,j,1)=s_force
-      s_force=hconfxz(i,:,j,2)
-                                     !s_bc(1)=bc_cxz(i,nz,j,2)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfxz(i,:,j,2)=s_force
-      !!!!!!!!!!!!!!! Cyy
-      s_force=hconfyy(i,:,j,1)
-      s_bc(1)=bc_cyy(i,nz,j,1)
-                                     !s_bc(2)=bc_cyy(i,1,j,1)
-      s_bc(2)=sIdiag(i,1,j,1)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfyy(i,:,j,1)=s_force
-      s_force=hconfyy(i,:,j,2)
-      s_bc(1)=bc_cyy(i,nz,j,2)
-                                     !s_bc(2)=bc_cyy(i,1,j,2)
-      s_bc(2)=sIdiag(i,1,j,2)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfyy(i,:,j,2)=s_force
-      !!!!!!!!!!!!!!! Cyz
-      s_force=hconfyz(i,:,j,1)
-      s_bc(1)=bc_cyz(i,nz,j,1)
-                                     !s_bc(2)=bc_cyz(i,1,j,1)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfyz(i,:,j,1)=s_force
-      s_force=hconfyz(i,:,j,2)
-      s_bc(1)=bc_cyz(i,nz,j,2)
-                                     !s_bc(2)=bc_cyz(i,1,j,2)
-      s_bc(2)=0.d0
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfyz(i,:,j,2)=s_force
-      !!!!!!!!!!!!!!! Czz
-      s_force=hconfzz(i,:,j,1)
-      s_bc(1)=bc_czz(i,nz,j,1)
-                                     !s_bc(2)=bc_czz(i,1,j,1)
-      s_bc(2)=sIdiag(i,1,j,1)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfzz(i,:,j,1)=s_force
-      s_force=hconfzz(i,:,j,2)
-      s_bc(1)=bc_czz(i,nz,j,2)
-                                     !s_bc(2)=bc_czz(i,1,j,2)
-      s_bc(2)=sIdiag(i,1,j,2)
-      call helmholtz_rred(s_force,beta2c(i,j),[1.0d0,1.0d0],[0.0d0,0.0d0],s_bc,zp)
-      hconfzz(i,:,j,2)=s_force                           
+    do i=1,spx
+    r1(i,j,c)=bc_cxx(i,nz,j,c)
+    r2(i,j,c)=sIdiag(i,1,j,c)
+    enddo
    enddo
   enddo
+  call helmholtz_cols(hconfxx,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  !!!!!!!!!!!!!!! Cxy
+  !$acc parallel loop collapse(3)
+  do c=1,2
+   do j=1,spy
+    do i=1,spx
+    r1(i,j,c)=bc_cxy(i,nz,j,c)
+    r2(i,j,c)=0.0d0
+    enddo
+   enddo
+  enddo
+  call helmholtz_cols(hconfxy,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  !!!!!!!!!!!!!!! Cxz
+   ! imaginary part: same boundary value as the real part (bc_cxz(i,nz,j,1)), as in the
+   ! previous per-column version where s_bc(1)=bc_cxz(i,nz,j,2) was commented out
+  !$acc parallel loop collapse(3)
+  do c=1,2
+   do j=1,spy
+    do i=1,spx
+    r1(i,j,c)=bc_cxz(i,nz,j,1)
+    r2(i,j,c)=0.0d0
+    enddo
+   enddo
+  enddo
+  call helmholtz_cols(hconfxz,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  !!!!!!!!!!!!!!! Cyy
+  !$acc parallel loop collapse(3)
+  do c=1,2
+   do j=1,spy
+    do i=1,spx
+    r1(i,j,c)=bc_cyy(i,nz,j,c)
+    r2(i,j,c)=sIdiag(i,1,j,c)
+    enddo
+   enddo
+  enddo
+  call helmholtz_cols(hconfyy,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  !!!!!!!!!!!!!!! Cyz
+  !$acc parallel loop collapse(3)
+  do c=1,2
+   do j=1,spy
+    do i=1,spx
+    r1(i,j,c)=bc_cyz(i,nz,j,c)
+    r2(i,j,c)=0.0d0
+    enddo
+   enddo
+  enddo
+  call helmholtz_cols(hconfyz,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  !!!!!!!!!!!!!!! Czz
+  !$acc parallel loop collapse(3)
+  do c=1,2
+   do j=1,spy
+    do i=1,spx
+    r1(i,j,c)=bc_czz(i,nz,j,c)
+    r2(i,j,c)=sIdiag(i,1,j,c)
+    enddo
+   enddo
+  enddo
+  call helmholtz_cols(hconfzz,beta2c,[1.0d0,1.0d0],[0.0d0,0.0d0],r1,r2,zp)
+  deallocate(r1,r2)
    
   return
 end subroutine calculate_pol 

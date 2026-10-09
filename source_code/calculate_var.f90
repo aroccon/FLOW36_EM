@@ -448,6 +448,7 @@ gammapsi=dt*P_i/pe_psi
 
 hpsi=-hpsi/gammapsi
 
+!$acc parallel loop collapse(2)
 do j=1,spypsi
   do i=1,spxpsi
     beta2(i,j)=1.0d0/gammapsi+k2psi(i+cstartpsi(1),j+cstartpsi(3))

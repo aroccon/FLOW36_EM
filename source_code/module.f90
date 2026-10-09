@@ -9,6 +9,10 @@ module commondata
 ! for use mpi_f08
 !type(mpi_comm) :: cart_comm
  integer :: cart_comm,flow_comm,part_comm,comm_comm,lacc_rank
+! sub-communicators of cart_comm used by the all-to-all transposes:
+! cart_comm_dir(0): the nzcpu ranks with the same y coordinate (direction 0, xy2xz/xz2xy)
+! cart_comm_dir(1): the nycpu ranks with the same z coordinate (direction 1, xz2yz/yz2xz)
+ integer :: cart_comm_dir(0:1)
  double precision :: xl,yl
  character(len=50) :: folder='./results'
 end module commondata

@@ -42,6 +42,7 @@ integer :: g_size(3),s_size(3)
 integer :: fysize(nycpu),fzsize(nzcpu)
 integer :: cysize(nzcpu),cxsize(nycpu)
 integer :: local_comm
+integer :: rank_dir0,rank_dir1
 integer :: numdevices, devicenum
 
 double precision :: stime,etime,dtime,mtime,gstime,getime,time
@@ -93,6 +94,18 @@ if(rank.lt.flow_comm_lim)then
   reorder=.false.
 
   call mpi_cart_create(flow_comm,2,dims,periodic,reorder,cart_comm,ierr)
+
+  ! sub-communicators along the two directions, used by the all-to-all transposes
+  call mpi_cart_sub(cart_comm,[.true.,.false.],cart_comm_dir(0),ierr)
+  call mpi_cart_sub(cart_comm,[.false.,.true.],cart_comm_dir(1),ierr)
+  ! the transposes index the all-to-all blocks with the Cartesian coordinate of the partner:
+  ! check that the rank in each sub-communicator is that coordinate
+  call mpi_comm_rank(cart_comm_dir(0),rank_dir0,ierr)
+  call mpi_comm_rank(cart_comm_dir(1),rank_dir1,ierr)
+  if(rank_dir0.ne.rank/nycpu .or. rank_dir1.ne.mod(rank,nycpu))then
+    write(*,*) 'rank',rank,': unexpected sub-communicator ranks',rank_dir0,rank_dir1
+    call mpi_abort(mpi_comm_world,1,ierr)
+  endif
 
 
   ! create derived datatype used in MPI I/O and commit it
@@ -443,7 +456,9 @@ call sim_check(i,int_1)
      call mpi_type_free(stype_fg,ierr)
      call mpi_comm_free(sp_save_comm_fg,ierr)
    endif
-   ! destroy cartesian communicator
+   ! destroy cartesian communicator and its sub-communicators
+   call mpi_comm_free(cart_comm_dir(0),ierr)
+   call mpi_comm_free(cart_comm_dir(1),ierr)
    call mpi_comm_free(cart_comm,ierr)
    deallocate(kxpsi)
    deallocate(kypsi)

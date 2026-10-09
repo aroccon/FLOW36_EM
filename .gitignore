@@ -1,0 +1,4 @@
+set_run/
+*.o
+*.mod
+.DS_Store

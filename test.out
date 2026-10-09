@@ -1,0 +1,6 @@
+Loading openmpi/4/gcc/4.1.5
+  Loading requirement: gmp/6/latest mpfr/4/latest mpc/1/latest isl/0/latest
+    gcc/11/latest libfabric/1/latest
+Loading fftw/3/3.3.10-gcc-openmpi
+  Loading requirement: ucx/1/latest openmpi/4/gcc/4.1.6
+4096 total processes failed to start

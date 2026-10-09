@@ -1,0 +1,37 @@
+! ========================================================================
+! SLICE INPUT CONFIGURATION FILE
+! ========================================================================
+! This file defines the slices of the computational domain to be saved
+! during processing. Each slice is defined by its direction and index.
+!
+! DIRECTIONS:
+!   X - slice perpendicular to X-axis (YZ plane)
+!   Y - slice perpendicular to Y-axis (XZ plane) 
+!   Z - slice perpendicular to Z-axis (XY plane)
+!
+! INDEX: Grid point index in the specified direction (1-based indexing)
+!
+! FORMAT: Each slice is defined on a separate line as:
+!   DIRECTION  INDEX
+!
+! NOTES:
+! - Lines starting with '!' are comments and will be ignored
+! - Empty lines are ignored
+! - Index must be within the valid range for your grid
+! - Maximum number of slices is limited by available memory
+! ========================================================================
+
+! Number of slices to save
+2                               ! NSLICES - total number of slices
+
+! Slice definitions (DIRECTION INDEX)
+X    512                          ! X-slice at index 1 (YZ plane)
+Y    256                        ! Y-slice at index 256 (XZ plane)
+Z    0                        ! Z-slice at index 257 (XY plane)
+
+! ========================================================================
+! ADDITIONAL EXAMPLES (commented out):
+! Y    96                       ! Y-slice at index 96
+! Z    80                       ! Z-slice at index 80
+! X   192                       ! X-slice at index 192
+! ========================================================================

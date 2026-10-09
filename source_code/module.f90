@@ -211,6 +211,25 @@ end module comm_pattern
 
 
 
+! send/receive buffers of the all-to-all transposes (xy2xz, xz2xy, xz2yz, yz2xz and _fg),
+! allocated once and grown only if a larger transpose needs more space: no allocation,
+! first-touch page faults or device synchronization at every transpose (managed memory)
+module a2a_buffers
+ implicit none
+ double precision, allocatable :: a2a_send(:), a2a_recv(:)
+contains
+ subroutine a2a_reserve(n)
+  integer(kind=8), intent(in) :: n
+  if(allocated(a2a_send))then
+   if(size(a2a_send,kind=8).ge.n) return
+   deallocate(a2a_send,a2a_recv)
+  endif
+  allocate(a2a_send(n),a2a_recv(n))
+ end subroutine a2a_reserve
+end module a2a_buffers
+
+
+
 !only for profiling using NVTX (Nvidia GPU)
 !! only for profiling
 !module nvtx

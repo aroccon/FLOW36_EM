@@ -25,7 +25,10 @@ if [ -d ./set_run/sc_compiled ]; then cd ./set_run; fi
 
 #if using HPC-SDK, CUDA-aware already enabled):
 # 4 consecutive ranks per node (one y-group with NYCPU=4: xz2yz/yz2xz stay on NVLink);
-# each rank uses the InfiniBand card of its GPU (mlx5_<local rank>)
-mpirun -n NUMTASKS --map-by ppr:4:node bash -c 'export UCX_NET_DEVICES=mlx5_${OMPI_COMM_WORLD_LOCAL_RANK}:1; exec ./sc_compiled/flow36'
+# binder_leo.sh sets the InfiniBand card of each GPU (UCX_NET_DEVICES=mlx5_<local rank>:1)
+chmod +x ./binder_leo.sh
+mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh ./sc_compiled/flow36
+# profiling (as in MHIT36): one report per rank, report_<rank>.nsys-rep
+#mpirun -n NUMTASKS --map-by ppr:4:node nsys profile -t cuda,nvtx,mpi,openacc --nic-metrics=true -o report_%q{OMPI_COMM_WORLD_RANK} ./binder_leo.sh ./sc_compiled/flow36
 
 # submit script with sbatch

@@ -923,6 +923,8 @@ fi
 
 # copy executable and edit it
 cp ./go.sh ./set_run
+# Leonardo GPU: binder that sets the InfiniBand card of each GPU (UCX_NET_DEVICES)
+if [ "$machine" == "22" ]; then cp ./Leonardo/binder_leo.sh ./set_run/; chmod +x ./set_run/binder_leo.sh; fi
 if [ "$machine" == "0" ]; then
 sed -i "" "s/NUMTASKS/$NNT/g" ./set_run/go.sh
 else

@@ -1,8 +1,3 @@
-# FLOW36DUAL
-Source code of FLOW36DUAL
+# FLOW36 
 
-## Main Developers:
-G. Soligo (https://github.com/giovannisoligo) \
-A. Roccon (https://github.com/aroccon)
-
-![](flow36_handbook/cop.jpeg)
+EM version for GPUs optimized by Claudio

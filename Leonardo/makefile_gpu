@@ -1,4 +1,4 @@
-FC    	= pgf90
+FC    	= mpif90
 LD	= $(FC)
 RM	= /bin/rm -f
 FOPTS   = -fast -acc -gpu=managed -Minfo=accel -Mfree -Mpreprocess  -module=./set_run/sc_compiled -lnvToolsExt

@@ -23,7 +23,7 @@
 #21 : Leonardo - CPU Partition
 #22 : Leonardo - GPU (Booster)
 #23 : MareNostrum 5 - CPU Partition
-machine="21"
+machine="22"
 echo ""
 echo "=============================================================================="
 echo "=                                 Running on                                 ="

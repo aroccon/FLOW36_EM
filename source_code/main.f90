@@ -15,6 +15,10 @@ use polymer
 use particle
 use wavenumber
 use comm_pattern
+#ifdef USE_NVTX
+! NVTX ranges for profiling (nsys): one range per time step
+use nvtx
+#endif
 
 #define machine machineflag
 #define openaccflag openacccompflag
@@ -43,6 +47,7 @@ integer :: fysize(nycpu),fzsize(nzcpu)
 integer :: cysize(nzcpu),cxsize(nycpu)
 integer :: local_comm
 integer :: rank_dir0,rank_dir1
+character(len=16) :: nvtx_label
 integer :: numdevices, devicenum
 
 double precision :: stime,etime,dtime,mtime,gstime,getime,time
@@ -295,6 +300,10 @@ endif
   do i=nstart+1,nend
 
     stime=mpi_wtime()
+#ifdef USE_NVTX
+    write(nvtx_label,'(a,i0)') 'step ',i
+    call nvtxStartRange(trim(nvtx_label),i)
+#endif
 
     time=time+dt
 
@@ -381,6 +390,9 @@ call sim_check(i,int_1)
       call write_failure(i)
     endif
 
+#ifdef USE_NVTX
+    call nvtxEndRange
+#endif
   enddo
 
   if(rank.eq.0)then

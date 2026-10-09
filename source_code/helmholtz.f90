@@ -431,7 +431,7 @@ subroutine helmholtz_pol(f,beta2,p,q,r,z_p)
   
   ! assemble RHS of equation
   !$acc kernels
-  !$acc parallel loop collapse(2)
+  !$acc loop collapse(2)
   do j=1,spy
     do i=1,spx
       h(i,1,j,1)=r(i,1,j,1)

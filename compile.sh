@@ -369,9 +369,13 @@ openacc_flag="1"
 elif [ "$machine" == "22" ]; then
 echo "=                              Leonardo (GPU)                             ="
 module purge
-module load nvhpc/24.3
-module load openmpi/4.1.6--nvhpc--24.3
+module load nvhpc/25.11
+# MPI: HPC-X (CUDA-aware Open MPI) bundled with NVHPC 25.11, CUDA 12.9 build
+NVHPC_DIR=$(dirname "$(readlink -f "$(which nvfortran)")")/../..
+source "$NVHPC_DIR/comm_libs/12.9/hpcx/hpcx-2.25.1/hpcx-init.sh"
+hpcx_load
 module list
+which mpif90
 cp ./Leonardo/makefile_gpu ./makefile
 cp ./Leonardo/go_gpu.sh ./go.sh
 savespectral="0"
@@ -413,7 +417,7 @@ exp_z="1" # integer, (2**iz)*exp_z+1
 
 # parallelization strategy
 NYCPU="4" # integer
-NZCPU="2" # integer
+NZCPU="1" # integer
 # running on single shared memory environment (0) or on many (1)
 multinode="0" # integer
 # number of MPI processes per node

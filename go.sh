@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account="IscrB_BMO"
 #SBATCH --job-name="flo36gpu_test"
-#SBATCH --time=00:05:00
+#SBATCH --time=00:15:00   ## profiling needs time to write the reports after the run
 #SBATCH --ntasks=NUMTASKS   ## total MPI tasks = NYCPU*NZCPU (set by compile.sh), nodes = ntasks/4
 #SBATCH --ntasks-per-node=4
 #SBATCH --gres=gpu:4   ###4 GPUs per node on 4 MPI tasks
@@ -15,8 +15,11 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 # load modules
 module purge
-module load nvhpc/23.1
-module load openmpi/4.1.4--nvhpc--23.1-cuda-11.8
+module load nvhpc/25.11
+# MPI: HPC-X (CUDA-aware Open MPI) bundled with NVHPC 25.11, CUDA 12.9 build
+NVHPC_DIR=$(dirname "$(readlink -f "$(which nvfortran)")")/../..
+source "$NVHPC_DIR/comm_libs/12.9/hpcx/hpcx-2.25.1/hpcx-init.sh"
+hpcx_load
 
 # the code uses paths relative to set_run (./sc_compiled, ./results, ./initial_fields):
 # run from set_run, also when the job is submitted from the main folder (sbatch set_run/go.sh)
@@ -27,8 +30,14 @@ if [ -d ./set_run/sc_compiled ]; then cd ./set_run; fi
 # 4 consecutive ranks per node (one y-group with NYCPU=4: xz2yz/yz2xz stay on NVLink);
 # binder_leo.sh sets the InfiniBand card of each GPU (UCX_NET_DEVICES=mlx5_<local rank>:1)
 chmod +x ./binder_leo.sh
-mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh ./sc_compiled/flow36
-# profiling (as in MHIT36): one report per rank, report_<rank>.nsys-rep
-#mpirun -n NUMTASKS --map-by ppr:4:node nsys profile -t cuda,nvtx,mpi,openacc --nic-metrics=true -o report_%q{OMPI_COMM_WORLD_RANK} ./binder_leo.sh ./sc_compiled/flow36
+
+# PROFILE=1: profile every rank with nsys from nvhpc/25.11, one report per rank (report_<rank>.nsys-rep)
+PROFILE=0
+
+if [ "$PROFILE" == "1" ]; then
+  mpirun -n NUMTASKS --map-by ppr:4:node nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./binder_leo.sh ./sc_compiled/flow36
+else
+  mpirun -n NUMTASKS --map-by ppr:4:node ./binder_leo.sh ./sc_compiled/flow36
+fi
 
 # submit script with sbatch

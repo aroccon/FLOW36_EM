@@ -208,7 +208,10 @@ enddo
               call spectral_to_phys(C_yzs,C_yzf,0)
               call spectral_to_phys(C_zzs,C_zzf,0)
 
+#if solvpolflag == 1
+              ! eigenvalues/eigenvectors only for the log-conformation solver (arrays allocated only then)
               call assemble_eigen
+#endif
           else
             if(rank.eq.0) write(*,'(1x,a,a,a)') 'Missing conformation tensor field input file ',time,' , stopping simulation'
             call exit(0)

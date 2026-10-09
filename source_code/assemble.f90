@@ -207,10 +207,12 @@ call spectral_to_phys(C_yzs,C_yzf,0)
 call spectral_to_phys(C_zzs,C_zzf,0)
 
 
-!$acc parallel loop collapse(3)
+! runs on the host: Diagonalization (eigen.f90) uses LAPACK DGEEV and allocate, which cannot be
+! called from a GPU kernel (managed memory makes the arrays accessible on the host).
+! A GPU version needs a device-callable 3x3 eigen-solver (see the commented Eigen3x3 module).
 do j=1,fpy
-  do k=1,fpz 
-     do i=1,nx 
+  do k=1,fpz
+     do i=1,nx
         CTOT = reshape([C_xxf(i,k,j), C_xyf(i,k,j), C_xzf(i,k,j), &
                         C_xyf(i,k,j), C_yyf(i,k,j), C_yzf(i,k,j), &
                         C_xzf(i,k,j), C_yzf(i,k,j), C_zzf(i,k,j)], [3,3])

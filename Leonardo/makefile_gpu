@@ -4,7 +4,7 @@ RM	= /bin/rm -f
 FOPTS   = -fast -acc -gpu=managed -Mfree -Mpreprocess  -module=./set_run/sc_compiled -lnvToolsExt
 FFLAGS  = $(FOPTS)
 #LIBS   = -I$(MPI_PATH) -cudalib=cufft #MPI path if using spectrum
-LIBS    = -cudalib=cufft
+LIBS    = -cudalib=cufft -llapack -lblas
 
 LDFLAGS	= $(FOPTS)
 

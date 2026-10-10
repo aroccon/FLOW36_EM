@@ -37,8 +37,14 @@ PROFILE=0
 # MPI over UCX only (InfiniBand + GPUDirect RDMA): if UCX cannot start, the run stops with an
 # error instead of silently falling back to TCP (ob1/tcp, ~0.3 GB/s between nodes)
 MPIOPT="--mca pml ucx"
-# print the UCX protocols selected for each message size (transport, GPUDirect or staging)
-#export UCX_PROTO_INFO=y
+# UCX_INFO=1: print the UCX protocols selected for each message size and memory type (look for
+# rc/dc_mlx5 zcopy/get/put on cuda memory = GPUDirect RDMA; cuda_copy/host staging = no GDR).
+# The tables go to test.err/test.out; set UCX_INFO=0 for production runs.
+UCX_INFO=1
+if [ "$UCX_INFO" == "1" ]; then
+  export UCX_PROTO_INFO=y
+  MPIOPT="$MPIOPT -x UCX_PROTO_INFO=y"
+fi
 
 if [ "$PROFILE" == "1" ]; then
   # the binder sets UCX_NET_DEVICES and then starts nsys, which profiles flow36 directly

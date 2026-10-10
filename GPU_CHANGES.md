@@ -25,6 +25,11 @@ This file is the reference for porting the same changes to the official FLOW36 r
 | Before the polymer/phase-field fixes                       | ~60 s             |                   |
 | After (batched polymer Helmholtz, phase-field loops on GPU)| **1.3 s**         | **0.77 s** (84% efficiency) |
 
+512^3, single phase: 150 ms per step on 1 node and on 2 nodes (no speed-up from the second node).
+UCX protocol tables (`UCX_PROTO_INFO`) confirm GPUDirect RDMA between nodes (`rc_verbs`,
+zero-copy) and `cuda_ipc` inside a node: the transfer path is right; the remaining inter-node cost
+is the transposes not overlapped with computation (see open issues).
+
 GPU memory, 512^3 phase field + polymers on 32 GPUs: 5.6 GB per GPU (printed after step 1).
 Correctness: results checked against the original code (diagnostics agree); the rewritten
 Helmholtz solvers are bitwise identical to the original ones on CPU.
@@ -113,14 +118,23 @@ no calls/IO, no reads of the written array at other indices).
 - `compile.sh` (machine 22): `nvhpc/25.11` + HPC-X 2.25.1 bundled with NVHPC
   (`comm_libs/12.9/hpcx/hpcx-2.25.1/hpcx-init.sh`, `hpcx_load`); copies `binder_leo.sh` to
   `set_run`. Commits `4cab023`, `d01f4ff`.
-- `Leonardo/makefile_gpu`: `FC=mpif90`; `-fast -acc -cuda -gpu=managed,cuda12.9`; no
-  `-Minfo=accel`, no `-lnvToolsExt` (removed in CUDA 12.9); `LIBS=-cudalib=cufft -llapack -lblas`;
-  `NVTX=1` adds `-DUSE_NVTX -cudalib=nvtx`.
+- `Leonardo/makefile_gpu`: `FC=mpif90`; `-fast -acc -cuda -gpu=mem:managed,cuda12.9,cc80`
+  (`mem:managed` replaces the deprecated `managed`; `cc80` = A100 only, no code for other GPU
+  generations: much faster compilation); no `-Minfo=accel`, no `-lnvToolsExt` (removed in CUDA
+  12.9); `LIBS=-cudalib=cufft -llapack -lblas`; `NVTX=1` adds `-DUSE_NVTX -cudalib=nvtx`.
+  One object file per source with module dependencies in order (`module.o` -> derivatives and
+  FFT/DCT modules -> `assemble.o` -> the rest), so `compile.sh` runs a single `make -j 8`
+  (compile time from 5-7 min to about 1 min).
 - `Leonardo/go_gpu.sh`: `--ntasks=NUMTASKS` (job sized by NYCPU*NZCPU); same modules as the
   build; `cd` into `set_run` (submit with `sbatch set_run/go.sh` from the main folder);
   `mpirun --map-by ppr:4:node --mca pml ucx ./binder_leo.sh ./sc_compiled/flow36`;
-  `PROFILE=1` profiles every rank with nsys (`report_<rank>.nsys-rep`).
-- `Leonardo/binder_leo.sh`: `UCX_NET_DEVICES=mlx5_<local rank>:1` (from MHIT36).
+  `PROFILE=1` profiles every rank with nsys (`report_<rank>.nsys-rep`), low overhead
+  (`-t cuda,nvtx`, no CPU sampling), time window `--delay=PROFDELAY --duration=PROFDUR`
+  (analyse a step in the middle: the first recorded step pays the tracing start-up; an NVTX
+  capture range of a single step showed only that slowed step). `UCX_INFO=1` prints the UCX
+  protocol tables (`-x UCX_PROTO_INFO=y`), for checking GPUDirect.
+- `Leonardo/binder_leo.sh`: `UCX_NET_DEVICES=mlx5_<local rank>:1` (from MHIT36); ends with
+  `exec "$@"` (not `$*`: keeps arguments with spaces, and nsys/the code replace the shell).
 - Process grid: `NYCPU=4` so that each node holds one y-group (xz2yz/yz2xz stay on NVLink).
 
 ## Porting to the official FLOW36 GPU branch (suggested order)
@@ -149,5 +163,8 @@ Things to check in the official version: whether it has the same host loops (com
   (`bc_cxz(i,nz,j,1)`), because `s_bc(1)=bc_cxz(i,nz,j,2)` was commented out in the original.
   Reproduced as is.
 - `print_start.f90`: Bingham number printed with `f8.5` (`********` for `Bi=200`).
+- Multi-node scaling at 512^3 single phase: overlap the transposes with computation or batch
+  several fields per transpose (fewer, larger messages). Possible small gain without code
+  changes: `UCX_TLS=rc_x,...` (`rc_mlx5` instead of `rc_verbs`).
 - Not yet optimized: `_fg` (dual grid) transforms and solvers, `helmholtz_red`, asynchronous
   OpenACC regions (one `cuStreamSynchronize` per region), batching several fields per transform.

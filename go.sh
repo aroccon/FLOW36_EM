@@ -31,8 +31,12 @@ if [ -d ./set_run/sc_compiled ]; then cd ./set_run; fi
 # binder_leo.sh sets the InfiniBand card of each GPU (UCX_NET_DEVICES=mlx5_<local rank>:1)
 chmod +x ./binder_leo.sh
 
-# PROFILE=1: profile every rank with nsys from nvhpc/25.11, one report per rank (report_<rank>.nsys-rep)
+# PROFILE=1: profile every rank with nsys from nvhpc/25.11, one report per rank (report_<rank>.nsys-rep).
+# Low-overhead setup: only CUDA + NVTX traced (no MPI/OpenACC interception, no CPU sampling) and
+# only one time step recorded: the NVTX range 'step <PROFSTEP>' (absolute step number, e.g.
+# nt_restart+5 for a restart). MPI waits appear as gaps between kernels.
 PROFILE=0
+PROFSTEP=5
 
 # MPI over UCX only (InfiniBand + GPUDirect RDMA): if UCX cannot start, the run stops with an
 # error instead of silently falling back to TCP (ob1/tcp, ~0.3 GB/s between nodes)
@@ -40,7 +44,7 @@ MPIOPT="--mca pml ucx"
 # UCX_INFO=1: print the UCX protocols selected for each message size and memory type (look for
 # rc/dc_mlx5 zcopy/get/put on cuda memory = GPUDirect RDMA; cuda_copy/host staging = no GDR).
 # The tables go to test.err/test.out; set UCX_INFO=0 for production runs.
-UCX_INFO=1
+UCX_INFO=0
 if [ "$UCX_INFO" == "1" ]; then
   export UCX_PROTO_INFO=y
   MPIOPT="$MPIOPT -x UCX_PROTO_INFO=y"
@@ -48,7 +52,9 @@ fi
 
 if [ "$PROFILE" == "1" ]; then
   # the binder sets UCX_NET_DEVICES and then starts nsys, which profiles flow36 directly
-  mpirun -n NUMTASKS --map-by ppr:4:node $MPIOPT ./binder_leo.sh nsys profile -t cuda,nvtx,mpi,openacc -o report_%q{OMPI_COMM_WORLD_RANK} ./sc_compiled/flow36
+  mpirun -n NUMTASKS --map-by ppr:4:node $MPIOPT ./binder_leo.sh nsys profile -t cuda,nvtx --sample=none --cpuctxsw=none \
+    --capture-range=nvtx --nvtx-capture="step $PROFSTEP" --capture-range-end=stop \
+    --env-var=NSYS_NVTX_PROFILER_REGISTER_ONLY=0 -o report_%q{OMPI_COMM_WORLD_RANK} ./sc_compiled/flow36
 else
   mpirun -n NUMTASKS --map-by ppr:4:node $MPIOPT ./binder_leo.sh ./sc_compiled/flow36
 fi

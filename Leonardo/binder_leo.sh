@@ -8,5 +8,6 @@ esac
 
 echo Launching on $UCX_NET_DEVICES
 
-$*
-
+# "$@" keeps each argument intact (with $* an argument containing spaces, e.g.
+# --nvtx-capture="step 5", would be split in two)
+exec "$@"

@@ -1630,14 +1630,9 @@ echo "=                      BEGINNING OF COMPILATION                           
 echo "=============================================================================="
 echo ""
 
-# double make needed because first one return errors for missing modules, but then creates them,
-# second make makes the code executable with the proper module
-# modules must be removed to update data inside them when changing simulation parameters like
-# nx, ny, nz, nycpu, nzcpu
-# -j 8: compile 8 files at a time (one object file per source, see Leonardo/makefile_gpu)
+# single make: the makefile compiles the module files first, in dependency order (see
+# Leonardo/makefile_gpu); -j 8: compile 8 files at a time (one object file per source)
 make -j 8
-
-make
 
 echo ""
 echo "=============================================================================="

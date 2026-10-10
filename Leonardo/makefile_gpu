@@ -1,8 +1,9 @@
-FC    	= mpif90
-LD	= $(FC)
-RM	= /bin/rm -f
-FOPTS   = -fast -acc -cuda -gpu=managed,cuda12.9 -Mfree -Mpreprocess  -module=./set_run/sc_compiled
-FFLAGS  = $(FOPTS)
+FC      = mpif90
+LD      = $(FC)
+RM      = /bin/rm -f
+# cc80: code only for the A100 (Leonardo); without it the compiler can generate code for several
+# GPU generations (no GPU on the login node to detect), which makes the compilation much slower
+FOPTS   = -fast -acc -cuda -gpu=managed,cuda12.9,cc80 -Mfree -Mpreprocess  -module=./set_run/sc_compiled
 #LIBS   = -I$(MPI_PATH) -cudalib=cufft #MPI path if using spectrum
 LIBS    = -cudalib=cufft -llapack -lblas
 # NVTX ranges (one per time step, main.f90) for nsys; set NVTX = 0 if the link fails
@@ -11,21 +12,33 @@ ifeq ($(NVTX),1)
 FOPTS  += -DUSE_NVTX
 LIBS   += -cudalib=nvtx
 endif
+FFLAGS  = $(FOPTS)
+LDFLAGS = $(FOPTS)
 
-LDFLAGS	= $(FOPTS)
+# one object file per source: the files can be compiled in parallel (make -j)
+SRCS    = $(shell cat list_source.list)
+OBJS    = $(SRCS:.f90=.o)
+EXEC    = ./set_run/sc_compiled/flow36
 
-FLWOBJS =  $(shell cat list_source.list)
+# files defining modules used by the others, compiled first and in this order:
+# module.f90 (commondata, par_size, cufftplans, a2a_buffers, ...) -> derivatives and the
+# FFT/DCT modules -> assemble (uses derivatives) -> all the other files
+D       = ./set_run/sc_compiled
+MOD0    = $(D)/module.o
+MOD1    = $(D)/module_derivatives.o $(D)/fftx_fwd.o $(D)/fftx_bwd.o $(D)/ffty_fwd.o \
+          $(D)/ffty_bwd.o $(D)/dctz_fwd.o $(D)/dctz_bwd.o
+MOD2    = $(D)/assemble.o
+OTHER   = $(filter-out $(MOD0) $(MOD1) $(MOD2),$(OBJS))
 
-OBJS	= $(FLWOBJS)
-EXEC    =  ./set_run/sc_compiled/flow36
+$(EXEC): $(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
 
-$(EXEC):	$(OBJS)
-	$(LD) $(FFLAGS) $(OBJS) $(LIBS) -o $@
+$(MOD1): $(MOD0)
+$(MOD2): $(MOD1)
+$(OTHER): $(MOD0) $(MOD1) $(MOD2)
+
+%.o: %.f90
+	$(FC) -c $(FFLAGS) $< -o $@
 
 clean:
 	$(RM) $(OBJS) $(EXEC)
-
-.SUFFIXES: .o
-
-.f90.o:
-	$(FC)  -c $(FFLAGS) $<

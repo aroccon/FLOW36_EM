@@ -1634,7 +1634,8 @@ echo ""
 # second make makes the code executable with the proper module
 # modules must be removed to update data inside them when changing simulation parameters like
 # nx, ny, nz, nycpu, nzcpu
-make
+# -j 8: compile 8 files at a time (one object file per source, see Leonardo/makefile_gpu)
+make -j 8
 
 make
 

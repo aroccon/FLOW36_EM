@@ -118,9 +118,11 @@ no calls/IO, no reads of the written array at other indices).
 - `compile.sh` (machine 22): `nvhpc/25.11` + HPC-X 2.25.1 bundled with NVHPC
   (`comm_libs/12.9/hpcx/hpcx-2.25.1/hpcx-init.sh`, `hpcx_load`); copies `binder_leo.sh` to
   `set_run`. Commits `4cab023`, `d01f4ff`.
-- `Leonardo/makefile_gpu`: `FC=mpif90`; `-fast -acc -cuda -gpu=mem:managed,cuda12.9,cc80`
+- `Leonardo/makefile_gpu`: `FC=mpif90`; `-fast -acc -cuda -gpu=mem:managed,cuda12.9,cc80 -mcmodel=medium`
   (`mem:managed` replaces the deprecated `managed`; `cc80` = A100 only, no code for other GPU
-  generations: much faster compilation); no `-Minfo=accel`, no `-lnvToolsExt` (removed in CUDA
+  generations: much faster compilation); `-mcmodel=medium`: fixed-size arrays (sizes are
+  compile-time parameters) exceed 2 GB of static data at 1024^3 (link error "relocation truncated
+  to fit"); no `-Minfo=accel`, no `-lnvToolsExt` (removed in CUDA
   12.9); `LIBS=-cudalib=cufft -llapack -lblas`; `NVTX=1` adds `-DUSE_NVTX -cudalib=nvtx`.
   One object file per source with module dependencies in order (`module.o` -> derivatives and
   FFT/DCT modules -> `assemble.o` -> the rest), so `compile.sh` runs a single `make -j 8`

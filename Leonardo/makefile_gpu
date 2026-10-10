@@ -3,7 +3,7 @@ LD      = $(FC)
 RM      = /bin/rm -f
 # cc80: code only for the A100 (Leonardo); without it the compiler can generate code for several
 # GPU generations (no GPU on the login node to detect), which makes the compilation much slower
-FOPTS   = -fast -acc -cuda -gpu=managed,cuda12.9,cc80 -Mfree -Mpreprocess  -module=./set_run/sc_compiled
+FOPTS   = -fast -acc -cuda -gpu=mem:managed,cuda12.9,cc80 -Mfree -Mpreprocess  -module=./set_run/sc_compiled
 #LIBS   = -I$(MPI_PATH) -cudalib=cufft #MPI path if using spectrum
 LIBS    = -cudalib=cufft -llapack -lblas
 # NVTX ranges (one per time step, main.f90) for nsys; set NVTX = 0 if the link fails

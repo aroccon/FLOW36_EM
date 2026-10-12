@@ -214,6 +214,7 @@ if(rank.eq.0)write(*,*) "Pol stress Saramito"
   allocate(pC_yyf(nx,fpz,fpy))
   allocate(pC_yzf(nx,fpz,fpy))
   allocate(pC_zzf(nx,fpz,fpy))
+!$acc parallel loop collapse(3) private(phif)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx

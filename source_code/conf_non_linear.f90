@@ -80,6 +80,7 @@ zitaVel=zita
 deallocate(BP)
 deallocate(zita)
 #elif fenepflag == 3
+!$acc parallel loop collapse(3) private(phif,traccia,tauD11,tauD22,tauD33,tauD12,tauD13,tauD23)
 do j=1,fpy
   do k=1,fpz
     do i=1,nx    

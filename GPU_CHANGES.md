@@ -23,7 +23,8 @@ This file is the reference for porting the same changes to the official FLOW36 r
 | Version                                                    | 4 nodes (16 GPUs) | 8 nodes (32 GPUs) |
 |------------------------------------------------------------|-------------------|-------------------|
 | Before the polymer/phase-field fixes                       | ~60 s             |                   |
-| After (batched polymer Helmholtz, phase-field loops on GPU)| **1.3 s**         | **0.77 s** (84% efficiency) |
+| After (batched polymer Helmholtz, phase-field loops on GPU)| 1.3 s             | 0.77 s (84% efficiency) |
+| + Saramito loops, whole-array updates, `_fg` transforms on GPU | **0.78 s**   |                   |
 
 512^3, single phase: 150 ms per step on 1 node and on 2 nodes (no speed-up from the second node).
 UCX protocol tables (`UCX_PROTO_INFO`) confirm GPUDirect RDMA between nodes (`rc_verbs`,
@@ -87,6 +88,13 @@ Commit `fe6e5ca` (normal grid); same changes in the `_fg` (dual grid) variants l
 The `pC_**f` loop and the `modtauD` loop ran on the host (7 fields to the host and 6 back per
 step): `!$acc parallel loop collapse(3)` with private scalars. Step 2.2-2.4 s -> 1.35-1.45 s
 (profiled, 512^3 phase field + polymers).
+
+### Whole-array updates: `phi_non_linear.f90`, `sterm_ch.f90`, `pol_stress_tensor.f90`
+89 array-syntax updates of full fields outside any OpenACC region (`s1=s1+xo*(a4+a7)/re`,
+gravity, body force, pressure gradient, `sphi`, `pols*visr`) ran on the host: wrapped in
+`!$acc kernels`. `sterm_ch`: stray `!$acc end kernels` (meant as `!$acc kernels`) fixed.
+Search for host code also with array syntax, not only `do` loops. Step 1.38-1.63 s -> 1.06-1.20 s
+(profiled); 0.78 s without profiling on 16 GPUs (was 1.3 s).
 
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and

@@ -111,6 +111,9 @@ no calls/IO, no reads of the written array at other indices).
 
 ### Diagnostics: `main.f90`
 - NVTX range per time step (`step <n>`) under `#ifdef USE_NVTX` (commit `6e247b0`).
+- `solver.f90`: nested NVTX ranges `phase field`, `velocity to phys`, `conformation tensor`,
+  `Navier-Stokes` (inside: `convective_ns`, `phi_non_linear`, `pol_stress_tensor`, `NS Helmholtz`,
+  `velocity to phys`), macros `NVTX_START`/`NVTX_END` (empty without `USE_NVTX`).
 - GPU memory in use after the first step, max over ranks, under `#ifdef _CUDA` (`34f37c1`).
 
 ## Build and run setup (Leonardo, `machine="22"`)

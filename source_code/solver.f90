@@ -14,6 +14,9 @@ subroutine solver(ntime)
   use polymer
   use derivatives
   use assemble
+#ifdef USE_NVTX
+  use nvtx
+#endif
 
 double precision, allocatable, dimension(:,:,:,:) :: s1,s2,s3,sphi,hphi,spsi,hpsi,stheta,htheta
 double precision, allocatable, dimension(:,:,:,:) :: pols1,pols2,pols3,polh1,polh2,polh3
@@ -40,11 +43,21 @@ integer :: ntime
 #define expz expansionz
 #define cpiflag cpicompflag
 
+! NVTX ranges for nsys (compiled with NVTX=1 in the makefile), nested in the range 'step <n>' of main
+#ifdef USE_NVTX
+#define NVTX_START(name,id) call nvtxStartRange(name,id)
+#define NVTX_END call nvtxEndRange
+#else
+#define NVTX_START(name,id)
+#define NVTX_END
+#endif
+
 ! flow part (not particle)
 if(rank.lt.flow_comm_lim)then
   
 ! Cahn-Hilliard equation solution
 #if phiflag == 1
+NVTX_START("phase field",1)
 allocate(sphi(spx,nz,spy,2))
 allocate(hphi(spx,nz,spy,2))
 ! calculate non-linear terms of Cahn-Hilliard equation
@@ -85,15 +98,19 @@ call calculate_phi_ac(hphi)
 deallocate(hphi)
              
 call chop_modes(phic)
+NVTX_END
 #endif  
 
 ! transform variables back to physical space and perform dealiasing
+NVTX_START("velocity to phys",2)
 call spectral_to_phys(uc,u,1)
 call spectral_to_phys(vc,v,1)
 call spectral_to_phys(wc,w,1)
+NVTX_END
 
 !conformation tensor equation
 #if polflag == 1  
+NVTX_START("conformation tensor",3)
 allocate(sconfxx(spx,nz,spy,2))
 allocate(sconfxy(spx,nz,spy,2))
 allocate(sconfxz(spx,nz,spy,2))
@@ -220,10 +237,12 @@ deallocate(bc_czz)
   call chop_modes(C_yys)
   call chop_modes(C_yzs)
   call chop_modes(C_zzs)
+NVTX_END
   
 #endif  
  
 !! Navier stokes
+NVTX_START("Navier-Stokes",4)
   allocate(s1(spx,nz,spy,2))
   allocate(s2(spx,nz,spy,2))
   allocate(s3(spx,nz,spy,2))
@@ -247,7 +266,9 @@ deallocate(bc_czz)
   !$acc end kernels
   
   ! calculate convective terms of N-S equation and store them in s1,s2,s3
+  NVTX_START("convective_ns",5)
   call convective_ns(s1,s2,s3)
+  NVTX_END
 
 ! add mean pressure gradient to S term
 #if cpiflag == 0
@@ -280,12 +301,16 @@ deallocate(bc_czz)
 
 ! add non-linear part of phase field to N-S non-linear terms
 #if phiflag == 1
+  NVTX_START("phi_non_linear",6)
   call phi_non_linear(s1,s2,s3)
+  NVTX_END
 #endif
 
 #if polflag == 1
   ! calculate polymer stress terms and store them in pols1,pols2,pols3
+  NVTX_START("pol_stress_tensor",7)
   call pol_stress_tensor(pols1,pols2,pols3)
+  NVTX_END
 #endif 
 
 ! add temperature contribution to N-S non-linear terms (Boussinesq)
@@ -351,6 +376,7 @@ deallocate(polh3)
 #endif
 
 ! add linear contribution to history term
+NVTX_START("NS Helmholtz",8)
 call hist_term(h1,h2,h3,h)
 
 ! solve Helmholtz equation for w
@@ -365,6 +391,8 @@ call calculate_uv(omega,h1,h2)
 call chop_modes(uc)
 call chop_modes(vc)
 call chop_modes(wc)
+NVTX_END
+NVTX_START("velocity to phys",2)
 ! only if surfactant calculated on finer grid than phase field
 #if expx != 1 || expy != 1 || expz != 1
   ! for phase field calculation
@@ -392,6 +420,8 @@ call chop_modes(wc)
     w_fg=w
 #endif
 #endif
+NVTX_END
+NVTX_END
 
 #if phiflag == 1
 ! Cahn-Hilliard equation for surfactant

@@ -1525,7 +1525,7 @@ if(slice_dir(islice).eq.'X')then
     call mpi_allreduce(slice_data_2d_loc,slice_data_2d_glob,nz*ny,mpi_double_precision,mpi_sum,flow_comm,ierr)
     if(rank.eq.0)then
       write(filename,'(a,"/slice_",a,"_X",i4.4,"_",i8.8,".dat")') trim(folder),trim(field_name),slice_idx(islice),ntime
-      open(80,file=filename,form='unformatted',status='new')
+      open(80,file=filename,form='unformatted',status='replace')
       write(80) slice_data_2d_glob
       close(80)
     endif
@@ -1545,7 +1545,7 @@ elseif(slice_dir(islice).eq.'Y')then
     call mpi_allreduce(slice_data_2d_loc,slice_data_2d_glob,nx*nz,mpi_double_precision,mpi_sum,flow_comm,ierr)
     if(rank.eq.0)then
       write(filename,'(a,"/slice_",a,"_Y",i4.4,"_",i8.8,".dat")') trim(folder),trim(field_name),slice_idx(islice),ntime
-      open(80,file=filename,form='unformatted',status='new')
+      open(80,file=filename,form='unformatted',status='replace')
       write(80) slice_data_2d_glob
       close(80)
     endif
@@ -1565,7 +1565,7 @@ elseif(slice_dir(islice).eq.'Z')then
     call mpi_allreduce(slice_data_2d_loc,slice_data_2d_glob,nx*ny,mpi_double_precision,mpi_sum,flow_comm,ierr)
     if(rank.eq.0)then
       write(filename,'(a,"/slice_",a,"_Z",i4.4,"_",i8.8,".dat")') trim(folder),trim(field_name),slice_idx(islice),ntime
-      open(80,file=filename,form='unformatted',status='new')
+      open(80,file=filename,form='unformatted',status='replace')
       write(80) slice_data_2d_glob
       close(80)
     endif

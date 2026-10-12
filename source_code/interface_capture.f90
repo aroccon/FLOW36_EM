@@ -96,7 +96,7 @@ xi = xi +1.d0
 ! Save to file
 if(rank.eq.0)then
   write(filename,'(a,"/xi_",i8.8,".dat")') trim(folder),ntime
-  open(80,file=filename,form='unformatted',status='new')
+  open(80,file=filename,form='unformatted',status='replace')
   write(80) xi
   close(80)
 endif

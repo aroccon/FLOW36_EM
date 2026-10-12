@@ -206,7 +206,7 @@ subroutine pol_stress_tensor(pols1,pols2,pols3)
  enddo
  
 #else
-if(rank.eq.0)write(*,*) "Pol stress Saramito"
+!if(rank.eq.0)write(*,*) "Pol stress Saramito"
 #if fenepflag == 3
   allocate(pC_xxf(nx,fpz,fpy))
   allocate(pC_xyf(nx,fpz,fpy))

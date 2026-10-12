@@ -304,9 +304,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 #if match_dens == 2
 ! rescale NS if rhor > 1 for improved stability
+!$acc kernels
 s1=s1+(a4+a7)/(re*rhor)
+!$acc end kernels
 #else
+!$acc kernels
 s1=s1+(a4+a7)/(re)
+!$acc end kernels
 #endif
 
 deallocate(a4)
@@ -376,9 +380,13 @@ call dz(a6,a4)
 
 ! add to S term a4+a7
 #if match_dens == 2
+!$acc kernels
 s2=s2+(a4+a7)/(re*rhor)
+!$acc end kernels
 #else
+!$acc kernels
 s2=s2+(a4+a7)/re
+!$acc end kernels
 #endif
 
 deallocate(a4)
@@ -448,9 +456,13 @@ call dz(a6,a4)
 
 ! add to S term a4+a7
 #if match_dens == 2
+!$acc kernels
 s3=s3+(a4+a7)/(re*rhor)
+!$acc end kernels
 #else
+!$acc kernels
 s3=s3+(a4+a7)/re
+!$acc end kernels
 #endif
 
 deallocate(a4,a5,a6,a7)
@@ -521,9 +533,13 @@ deallocate(a4f,a5f,a6f)
  ! add to S term a4+a7
 #if match_dens == 2
   ! rescale NS if rhor > 1 for improved stability
+  !$acc kernels
   s1=s1+(a4+a7)/(re*rhor)*visr
+  !$acc end kernels
 #else
+  !$acc kernels
   s1=s1+(a4+a7)/re*visr
+  !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -594,9 +610,13 @@ deallocate(a4f,a5f,a6f)
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s2=s2+(a4+a7)/(re*rhor)*visr
+ !$acc end kernels
 #else
+ !$acc kernels
  s2=s2+(a4+a7)/re*visr
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -667,9 +687,13 @@ deallocate(a4f,a5f,a6f)
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s3=s3+(a4+a7)/(re*rhor)*visr
+ !$acc end kernels
 #else
+ !$acc kernels
  s3=s3+(a4+a7)/re*visr
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -685,7 +709,7 @@ deallocate(a4f,a5f,a6f)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc != 2 && polflag == 1 && carflag == 0)
 if (visr .le. xo) then
-  if (rank .eq. 0) print *, 'mur<= 1 - N/Viscoelastic, visr<=xo'
+  !if (rank .eq. 0) print *, 'mur<= 1 - N/Viscoelastic, visr<=xo'
 
   ! first row
  allocate(a4(spx,nz,spy,2))
@@ -746,9 +770,13 @@ if (visr .le. xo) then
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s1=s1+xo*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s1=s1+xo*(a4+a7)/(re)
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -817,9 +845,13 @@ if (visr .le. xo) then
  
  ! add to S term a4+a7
 #if match_dens == 2
+ !$acc kernels
  s2=s2+xo*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s2=s2+xo*(a4+a7)/re
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -888,17 +920,21 @@ if (visr .le. xo) then
  
  ! add to S term a4+a7
 #if match_dens == 2
+ !$acc kernels
  s3=s3+xo*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s3=s3+xo*(a4+a7)/re
+ !$acc end kernels
 #endif
 
 if (rank.eq.0)then
- print *,'xo', xo
- print *,'visr', visr
- print *,'visr/xo', visr/xo
- print *,'((visr/xo)-1.0d0)', ((visr/xo)-1.0d0)
- print *,'xo((visr/xo)-1.0d0)', xo*((visr/xo)-1.0d0)
+ !print *,'xo', xo
+ !print *,'visr', visr
+ !print *,'visr/xo', visr/xo
+ !print *,'((visr/xo)-1.0d0)', ((visr/xo)-1.0d0)
+ !print *,'xo((visr/xo)-1.0d0)', xo*((visr/xo)-1.0d0)
 endif
 
  
@@ -910,7 +946,7 @@ endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (xo < visr) then
 
-if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
+!if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
 
   ! first row
    allocate(a4(spx,nz,spy,2))
@@ -971,9 +1007,13 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    ! add to S term a4+a7
 #if match_dens == 2
    ! rescale NS if rhor > 1 for improved stability
+   !$acc kernels
    s1=s1+visr*(a4+a7)/(re*rhor)
+   !$acc end kernels
 #else
+   !$acc kernels
    s1=s1+visr*(a4+a7)/(re)
+   !$acc end kernels
 #endif
    
    deallocate(a4)
@@ -1042,9 +1082,13 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    ! add to S term a4+a7
 #if match_dens == 2
+   !$acc kernels
    s2=s2+visr*(a4+a7)/(re*rhor)
+   !$acc end kernels
 #else
+   !$acc kernels
    s2=s2+visr*(a4+a7)/re
+   !$acc end kernels
 #endif
    
    deallocate(a4)
@@ -1113,9 +1157,13 @@ if (rank.eq.0) print *, 'mur<= 1 - N/Viscoelastic, xo<visr'
    
    ! add to S term a4+a7
 #if match_dens == 2
+   !$acc kernels
    s3=s3+visr*(a4+a7)/(re*rhor)
+   !$acc end kernels
 #else
+   !$acc kernels
    s3=s3+visr*(a4+a7)/re
+   !$acc end kernels
 #endif
   
   !if (rank.eq.0)then
@@ -1199,9 +1247,13 @@ endif
  ! add to S term a4+a7
 #if match_dens == 2
   ! rescale NS if rhor > 1 for improved stability
+  !$acc kernels
   s1=s1+(a4+a7)/(re*rhor)*visr
+  !$acc end kernels
 #else
+  !$acc kernels
   s1=s1+(a4+a7)/re*visr
+  !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -1272,9 +1324,13 @@ endif
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s2=s2+(a4+a7)/(re*rhor)*visr
+ !$acc end kernels
 #else
+ !$acc kernels
  s2=s2+(a4+a7)/re*visr
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -1345,9 +1401,13 @@ endif
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s3=s3+(a4+a7)/(re*rhor)*visr
+ !$acc end kernels
 #else
+ !$acc kernels
  s3=s3+(a4+a7)/re*visr
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -1423,16 +1483,20 @@ endif
  ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s1=s1+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s1=s1+(a4+a7)/re
+ !$acc end kernels
 #endif
 
 if (rank.eq.0)then
-  print *,'xo', xo
-  print *,'visr', visr
-  print *,'visr*xo', visr*xo
-  print *,'((visr*xo)-1.0d0)', ((visr*xo)-1.0d0)
+  !print *,'xo', xo
+  !print *,'visr', visr
+  !print *,'visr*xo', visr*xo
+  !print *,'((visr*xo)-1.0d0)', ((visr*xo)-1.0d0)
  endif
  
  deallocate(a4)
@@ -1501,9 +1565,13 @@ if (rank.eq.0)then
  
  ! add to S term a4+a7
 #if match_dens == 2
+ !$acc kernels
  s2=s2+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s2=s2+(a4+a7)/re
+ !$acc end kernels
 #endif
  
  deallocate(a4)
@@ -1572,9 +1640,13 @@ if (rank.eq.0)then
  
  ! add to S term a4+a7
 #if match_dens == 2
+ !$acc kernels
  s3=s3+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #else
+ !$acc kernels
  s3=s3+(a4+a7)/re
+ !$acc end kernels
 #endif
  
  deallocate(a4,a5,a6,a7)
@@ -1646,9 +1718,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 #if match_dens == 2
  ! rescale NS if rhor > 1 for improved stability
+ !$acc kernels
  s1=s1+(a4+a7)/(re*rhor)*(visr*xo)
+ !$acc end kernels
 #else
+ !$acc kernels
  s1=s1+(a4+a7)/re*(visr*xo)
+ !$acc end kernels
 #endif
 
 deallocate(a4)
@@ -1719,9 +1795,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 #if match_dens == 2
 ! rescale NS if rhor > 1 for improved stability
+!$acc kernels
 s2=s2+(a4+a7)/(re*rhor)*(visr*xo)
+!$acc end kernels
 #else
+!$acc kernels
 s2=s2+(a4+a7)/re*(visr*xo)
+!$acc end kernels
 #endif
 
 deallocate(a4)
@@ -1792,9 +1872,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 #if match_dens == 2
 ! rescale NS if rhor > 1 for improved stability
+!$acc kernels
 s3=s3+(a4+a7)/(re*rhor)*(visr*xo)
+!$acc end kernels
 #else
+!$acc kernels
 s3=s3+(a4+a7)/re*(visr*xo)
+!$acc end kernels
 #endif
 
 deallocate(a4)
@@ -1806,11 +1890,11 @@ deallocate(a4f)
 deallocate(a5f)
 deallocate(a6f)
 if (rank.eq.0)then
-  print *,'xo', xo
-  print *,'visr', visr
-  print *,'visr*xo', visr*xo
-  print *,'(1.0d0-1.0d0/(visr*xo))', (1.0d0-1.0d0/(visr*xo))
-  print *,'(1.0d0-1.0d0/(visr*xo))*(visr*xo)', (1.0d0-1.0d0/(visr*xo))*(visr*xo)
+  !print *,'xo', xo
+  !print *,'visr', visr
+  !print *,'visr*xo', visr*xo
+  !print *,'(1.0d0-1.0d0/(visr*xo))', (1.0d0-1.0d0/(visr*xo))
+  !print *,'(1.0d0-1.0d0/(visr*xo))*(visr*xo)', (1.0d0-1.0d0/(visr*xo))*(visr*xo)
  endif
 !end Newtonian with visr>1 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1929,9 +2013,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s1=s1+1.0d0/(re*rhor)*(a4+a7)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s1=s1+1.0d0/(re)*(a4+a7)
+!$acc end kernels
 #endif
 
 
@@ -1969,9 +2057,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s2=s2+1.0d0/(re*rhor)*(a4+a7)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s2=s2+1.0d0/(re)*(a4+a7)
+!$acc end kernels
 #endif
 
 ! third row
@@ -2010,9 +2102,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s3=s3+1.0d0/(re*rhor)*(a4+a7)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s3=s3+1.0d0/(re)*(a4+a7)
+!$acc end kernels
 #endif
 
 deallocate(a4,a5,a6,a7)
@@ -2129,9 +2225,13 @@ call dz(a6,a4)
 ! add to S term a4+a7
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s1=s1+visr*(a4+a7)/(re*rhor)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s1=s1+visr*(a4+a7)/re
+!$acc end kernels
 #endif
 
 
@@ -2168,9 +2268,13 @@ call dz(a6,a4)
 
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s2=s2+visr*(a4+a7)/(re*rhor)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s2=s2+visr*(a4+a7)/re
+!$acc end kernels
 #endif
 
 ! third row
@@ -2208,9 +2312,13 @@ call dz(a6,a4)
 
 ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+!$acc kernels
 s3=s3+visr*(a4+a7)/(re*rhor)
+!$acc end kernels
 #elif match_dens != 2 
+!$acc kernels
 s3=s3+visr*(a4+a7)/re
+!$acc end kernels
 #endif
 
 deallocate(a4,a5,a6,a7)
@@ -2328,9 +2436,13 @@ deallocate(a4,a5,a6,a7)
  ! add to S term a4+a7
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s1=s1+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s1=s1+(a4+a7)/re
+ !$acc end kernels
 #endif
  
  
@@ -2367,9 +2479,13 @@ deallocate(a4,a5,a6,a7)
  
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s2=s2+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s2=s2+(a4+a7)/re
+ !$acc end kernels
 #endif
  
  ! third row
@@ -2407,9 +2523,13 @@ deallocate(a4,a5,a6,a7)
  
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s3=s3+(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s3=s3+(a4+a7)/re
+ !$acc end kernels
 #endif
  
  deallocate(a4,a5,a6,a7)
@@ -2527,9 +2647,13 @@ deallocate(a4,a5,a6,a7)
  ! add to S term a4+a7
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s1=s1+visr*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s1=s1+visr*(a4+a7)/re
+ !$acc end kernels
 #endif
  
  
@@ -2566,9 +2690,13 @@ deallocate(a4,a5,a6,a7)
  
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s2=s2+visr*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s2=s2+visr*(a4+a7)/re
+ !$acc end kernels
 #endif
  
  ! third row
@@ -2606,9 +2734,13 @@ deallocate(a4,a5,a6,a7)
  
  ! rescale NS if rhor > 1 for improved stability
 #if match_dens == 2 
+ !$acc kernels
  s3=s3+visr*(a4+a7)/(re*rhor)
+ !$acc end kernels
 #elif match_dens != 2 
+ !$acc kernels
  s3=s3+visr*(a4+a7)/re
+ !$acc end kernels
 #endif
  
  deallocate(a4,a5,a6,a7)
@@ -2648,9 +2780,11 @@ call phys_to_spectral(a4f,a4,0)
 
 deallocate(a4f)
 
+!$acc kernels
 s1=s1+1.0d0/fr**2*a4*grav(1)
 s2=s2+1.0d0/fr**2*a4*grav(3)
 s3=s3+1.0d0/fr**2*a4*grav(2)
+!$acc end kernels
 
 deallocate(a4)
 
@@ -2677,9 +2811,11 @@ call phys_to_spectral(a4f,a4,0)
 
 deallocate(a4f)
 
+!$acc kernels
 s1=s1+1.0d0/fr**2*a4*grav(1)
 s2=s2+1.0d0/fr**2*a4*grav(3)
 s3=s3+1.0d0/fr**2*a4*grav(2)
+!$acc end kernels
 
 deallocate(a4)
 
@@ -2712,9 +2848,11 @@ call phys_to_spectral(a4f,a4,0)
 
 deallocate(a4f)
 
+!$acc kernels
 s1=s1+1.0d0/fr**2*a4*grav(1)
 s2=s2+1.0d0/fr**2*a4*grav(3)
 s3=s3+1.0d0/fr**2*a4*grav(2)
+!$acc end kernels
 
 deallocate(a4)
 
@@ -2742,9 +2880,11 @@ call phys_to_spectral(a4f,a4,0)
 
 deallocate(a4f)
 
+!$acc kernels
 s1=s1+1.0d0/fr**2*a4*grav(1)
 s2=s2+1.0d0/fr**2*a4*grav(3)
 s3=s3+1.0d0/fr**2*a4*grav(2)
+!$acc end kernels
 
 deallocate(a4)
 
@@ -2806,13 +2946,17 @@ deallocate(a6f)
 
 #if match_dens == 2
 ! rescale NS if rhor > 1 for improved stability
+!$acc kernels
 s1=s1-0.5d0*(1.0d0/rhor-1.0d0)*a4
 s2=s2-0.5d0*(1.0d0/rhor-1.0d0)*a5
 s3=s3-0.5d0*(1.0d0/rhor-1.0d0)*a6
+!$acc end kernels
 #else
+!$acc kernels
 s1=s1-0.5d0*(rhor-1.0d0)*a4
 s2=s2-0.5d0*(rhor-1.0d0)*a5
 s3=s3-0.5d0*(rhor-1.0d0)*a6
+!$acc end kernels
 #endif
 
 deallocate(a4)
@@ -2833,9 +2977,11 @@ wcp=wc
 #if bodyflag == 1
 allocate(a4(spx,nz,spy,2))
 call phys_to_spectral(phi+1.0d0,a4,0)
+!$acc kernels
 s1=s1+body_d(1)*body_c*0.5d0*a4
 s2=s2+body_d(3)*body_c*0.5d0*a4
 s3=s3+body_d(2)*body_c*0.5d0*a4
+!$acc end kernels
 deallocate(a4)
 #endif
 
@@ -2846,8 +2992,10 @@ deallocate(a4)
 #if sgradpflag == 1
 allocate(a4(spx,nz,spy,2))
 call phys_to_spectral(phi,a4,0)
+!$acc kernels
 s1=s1+sgradp_d(1)*a4
 s2=s2+sgradp_d(3)*a4
+!$acc end kernels
 deallocate(a4)
 #endif
 

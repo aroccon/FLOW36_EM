@@ -27,7 +27,9 @@ integer :: i,j,k
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!$acc kernels
 sphi=0.0d0
+!$acc end kernels
 
 #if phicorflag == 0
 ! Standard MODEL
@@ -1265,7 +1267,7 @@ enddo
 call dz(a3,a2)
 
 
-!$acc end kernels
+!$acc kernels
 sphi=sphi+(a4+a1+a2)/pe
 !$acc end kernels
 
@@ -1611,7 +1613,9 @@ call phys_to_spectral(convf,a1,1)
 deallocate(convf)
 
 ! sum all the convective terms to sphi
+!$acc kernels
 sphi= -a1
+!$acc end kernels
 
 ! compute the corrective term
 !$acc kernels
@@ -1768,7 +1772,9 @@ call phys_to_spectral(convf,a1,1)
 deallocate(convf)
 
 ! sum all the convective terms to sphi
+!$acc kernels
 sphi= -a1
+!$acc end kernels
 
 !Compute the sharpening term
 epsnum=1.e-4

@@ -346,9 +346,11 @@ pols3=((1.0d0-xo)*a6)/(re*Wi)
 !$acc end kernels
 
 #if (phiflag == 1 && carflag == 1)
+!$acc kernels
 pols1=pols1*visr
 pols2=pols2*visr
 pols3=pols3*visr
+!$acc end kernels
 #endif
 
 #endif

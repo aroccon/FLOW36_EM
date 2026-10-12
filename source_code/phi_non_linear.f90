@@ -244,7 +244,7 @@ deallocate(gradphiz)
 !!!!!!!!!!!!!!!!!!!!!!
 #if non_new_flag == 0
 #if (match_visc != 2 && polflag == 0)
- if (rank.eq.0) print*,'mur<= 1 - N/N'
+ !if (rank.eq.0) print*,'mur<= 1 - N/N'
 ! first row
 allocate(a4(spx,nz,spy,2))
 allocate(a5(spx,nz,spy,2))
@@ -472,7 +472,7 @@ deallocate(a4f,a5f,a6f)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc == 2 && polflag == 0)
- if (rank.eq.0) print*,'mur> 1 - N/N'
+ !if (rank.eq.0) print*,'mur> 1 - N/N'
  ! if visr > 1
  !!!!!!!!!!!!!!!!
  ! first row
@@ -1186,7 +1186,7 @@ endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc == 2 && polflag == 1 && carflag == 0)
- if (rank.eq.0) print*,'mur> 1 - N/Viscoelastic'
+ !if (rank.eq.0) print*,'mur> 1 - N/Viscoelastic'
 ! if visr > 1
 !!!!!!!!!!!!!!!!
 ! first row
@@ -1422,7 +1422,7 @@ endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc != 2 && polflag == 1 && carflag == 1)
- if (rank.eq.0) print*,'mur<= 1 - Viscoelastic/N'
+ !if (rank.eq.0) print*,'mur<= 1 - Viscoelastic/N'
 
 ! first row
  allocate(a4(spx,nz,spy,2))
@@ -1656,7 +1656,7 @@ if (rank.eq.0)then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc == 2 && polflag == 1 && carflag == 1)
- if (rank.eq.0) print*,'mur> 1 - Viscoelastic/N'
+ !if (rank.eq.0) print*,'mur> 1 - Viscoelastic/N'
 
 ! if visr > 1
  !!!!!!!!!!!!!!!!
@@ -1905,7 +1905,7 @@ if (rank.eq.0)then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Carreau part
 #if non_new_flag == 1
 #if (match_visc != 2 && car_carreau_flag == 0)
- if (rank.eq.0) print*,'mur<= 1 - N/Carreau'
+ !if (rank.eq.0) print*,'mur<= 1 - N/Carreau'
 ! first row
 allocate(a4(spx,nz,spy,2))
 allocate(a5(spx,nz,spy,2))
@@ -2116,7 +2116,7 @@ deallocate(a4,a5,a6,a7)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc == 2 && car_carreau_flag == 0)
-if (rank.eq.0) print*,'mur> 1 - N/Carreau'
+!if (rank.eq.0) print*,'mur> 1 - N/Carreau'
 
 ! first row
 allocate(a4(spx,nz,spy,2))
@@ -2327,7 +2327,7 @@ deallocate(a4,a5,a6,a7)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc != 2 && car_carreau_flag == 1)
- if (rank.eq.0) print*,'mur<= 1 - Carreau/N'
+ !if (rank.eq.0) print*,'mur<= 1 - Carreau/N'
 
 ! first row
  allocate(a4(spx,nz,spy,2))
@@ -2538,7 +2538,7 @@ deallocate(a4,a5,a6,a7)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #elif (match_visc == 2 && car_carreau_flag == 1)
- if (rank.eq.0) print*,'mur> 1 - Carreau/N'
+ !if (rank.eq.0) print*,'mur> 1 - Carreau/N'
 
 ! first row
  allocate(a4(spx,nz,spy,2))

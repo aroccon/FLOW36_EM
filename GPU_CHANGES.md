@@ -70,13 +70,23 @@ Commits `9761eaf`, `9ec53db`, `32263f3`, `23a0d57`.
   in the kernels (block j at offset `j*numel`), passed directly to the MPI calls.
 
 ### Transforms and FFT/DCT: `spectral_to_phys.f90`, `phys_to_spectral.f90`, `fftx_*`, `ffty_*`, `dctz_*`
-Commit `fe6e5ca` (normal grid only; `_fg` variants unchanged).
+Commit `fe6e5ca` (normal grid); same changes in the `_fg` (dual grid) variants later (see below).
 - FFT/DCT work arrays (`wt`, `wot`, `a`, `b`, `ac`, `bc`) are `allocatable, save`, reallocated
   only if the shape changes; no `deallocate` at every call.
 - `spectral_to_phys`/`phys_to_spectral`: one persistent array per stage (`s1`,`s2`,`s3`,
   allocated with `stage_alloc` from `a2a_buffers`) and a pointer to the current stage; the
   transposes write directly into the next stage, removing the `wa=u` copies. The `u=uc` copy
   before `dctz_bwd` is kept (it modifies its input).
+
+- `_fg` variants (`spectral_to_phys_fg`, `phys_to_spectral_fg`, `fftx/ffty/dctz_*_fg`): same
+  persistent arrays/stages (own arrays, dual-grid sizes), same plans and kernels: results unchanged.
+  They are used by `phi_non_linear` (surface tension) also when the expansion factors are 1
+  (~12 calls per step): `phi_non_linear` was ~40% of the step at 512^3 with polymers.
+
+### Saramito (`fenepflag=3`): `pol_stress_tensor.f90`, `conf_non_linear.f90`
+The `pC_**f` loop and the `modtauD` loop ran on the host (7 fields to the host and 6 back per
+step): `!$acc parallel loop collapse(3)` with private scalars. Step 2.2-2.4 s -> 1.35-1.45 s
+(profiled, 512^3 phase field + polymers).
 
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and
@@ -171,5 +181,5 @@ Things to check in the official version: whether it has the same host loops (com
 - Multi-node scaling at 512^3 single phase: overlap the transposes with computation or batch
   several fields per transpose (fewer, larger messages). Possible small gain without code
   changes: `UCX_TLS=rc_x,...` (`rc_mlx5` instead of `rc_verbs`).
-- Not yet optimized: `_fg` (dual grid) transforms and solvers, `helmholtz_red`, asynchronous
+- Not yet optimized: `_fg` solvers (`helmholtz_fg`, surfactant only), `helmholtz_red`, asynchronous
   OpenACC regions (one `cuStreamSynchronize` per region), batching several fields per transform.

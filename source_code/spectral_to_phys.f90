@@ -164,13 +164,16 @@ use mpi
 use fftx_bwd_module
 use ffty_bwd_module
 use dctz_bwd_module
+use a2a_buffers, only: stage_alloc
 
 integer :: dims(2)
 integer :: rx,ry,rz
 integer :: aliasing
 
 double precision :: uc(spxpsi,npsiz,spypsi,2),uout(npsix,fpzpsi,fpypsi)
-double precision, allocatable :: u(:,:,:,:),wa(:,:,:,:)
+! persistent stage arrays as in spectral_to_phys (own arrays: dual-grid sizes)
+double precision, allocatable, target, save :: s1(:,:,:,:),s2(:,:,:,:),s3(:,:,:,:)
+double precision, pointer, contiguous :: u(:,:,:,:)
 
 
 dims(1)=nzcpu
@@ -181,10 +184,12 @@ dims(2)=nycpu
 ! 1)    idct z direction
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-allocate(u(spxpsi,npsiz,spypsi,2))
+call stage_alloc(s1,spxpsi,npsiz,spypsi)
+! copy: dctz_bwd_fg modifies its input (dealiasing, last mode), uc must be preserved
 !$acc kernels
-u=uc
+s1=uc
 !$acc end kernels
+u=>s1
 !call dctz_bwd_fg(u,u,spxpsi,npsiz,spypsi,aliasing)
 call dctz_bwd_fg(u,u,aliasing)
 
@@ -234,16 +239,9 @@ endif
 #define nzcpu nnzcpu
 #if nzcpu>1
 
- allocate(wa(spxpsi,npsiz,spypsi,2))
- !$acc kernels
- wa=u
- !$acc end kernels
- deallocate(u)
- allocate(u(spxpsi,npz,npsiy,2))
-
- call xy2xz_fg(wa,u,dims,ngx,npx,ngy,npy,ngz,npz)
-
- deallocate(wa)
+ call stage_alloc(s2,spxpsi,npz,npsiy)
+ call xy2xz_fg(u,s2,dims,ngx,npx,ngy,npy,ngz,npz)
+ u=>s2
 
 #else
 !if(rank.eq.0) write(*,*) 'skipping xy - xz'
@@ -277,16 +275,9 @@ endif
 #define nycpu nnycpu
 #if nycpu>1
 
- allocate(wa(spxpsi,npz,npsiy,2))
- !$acc kernels
- wa=u
- !$acc end kernels
- deallocate(u)
- allocate(u(npsix/2+1,npz,npy,2))
-
- call xz2yz_fg(wa,u,dims,ngx,npx,ngy,npy,ngz,npz)
-
- deallocate(wa)
+ call stage_alloc(s3,npsix/2+1,npz,npy)
+ call xz2yz_fg(u,s3,dims,ngx,npx,ngy,npy,ngz,npz)
+ u=>s3
 
 #else
 !if(rank.eq.0) write(*,*) 'skipping xz - yz'
@@ -299,7 +290,7 @@ endif
 
 call fftx_bwd_fg(u,uout,aliasing)
 
-deallocate(u)
+nullify(u)
 
 
 return

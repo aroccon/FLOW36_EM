@@ -89,14 +89,19 @@ implicit none
 integer :: aliasing,nx,npy,npz
 real(c_double), dimension(:,:,:) :: ur
 real(c_double), dimension(:,:,:,:) :: uc
-complex(c_double_complex), allocatable :: wt(:,:,:)
+complex(c_double_complex), allocatable, save :: wt(:,:,:)
 
 !! get dimensions
 nx=size(ur,1)
 npz=size(ur,2)
 npy=size(ur,3)
 !! temp for storing complex fft results
-allocate(wt(nx/2+1,npz,npy))
+! persistent work arrays (allocated once; managed memory: no allocation, first-touch
+! page faults or free at every call); reallocated only if the shape changes
+if(allocated(wt))then
+ if(any(shape(wt).ne.[nx/2+1,npz,npy])) deallocate(wt)
+endif
+if(.not.allocated(wt)) allocate(wt(nx/2+1,npz,npy))
 
 #if openaccflag == 0
 ! dealiasing
@@ -130,6 +135,6 @@ ur=ur/dble(nx)
 !$acc end data
 #endif
 
-deallocate(wt)
+! wt kept allocated for the next call
 end subroutine
 end module

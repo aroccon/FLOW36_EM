@@ -146,8 +146,8 @@ real(c_double), allocatable ::  tin(:),tout(:)
 integer :: aliasing,i,k,j
 !used only with cuFFT
 #if openaccflag == 1
-double precision, allocatable :: a(:,:,:), b(:,:,:)
-complex(c_double_complex), allocatable :: ac(:,:,:), bc(:,:,:)
+double precision, allocatable, save :: a(:,:,:), b(:,:,:)
+complex(c_double_complex), allocatable, save :: ac(:,:,:), bc(:,:,:)
 #endif
 
 ! get dimensions
@@ -178,10 +178,24 @@ deallocate(tin,tout)
 
 
 #if openaccflag == 1
-allocate(a(2*(nz-1),nsx,npy))
-allocate(b(2*(nz-1),nsx,npy))
-allocate(ac(nz,nsx,npy))
-allocate(bc(nz,nsx,npy))
+! persistent work arrays (allocated once; managed memory: no allocation, first-touch
+! page faults or free at every call); reallocated only if the shape changes
+if(allocated(a))then
+ if(any(shape(a).ne.[2*(nz-1),nsx,npy])) deallocate(a)
+endif
+if(.not.allocated(a)) allocate(a(2*(nz-1),nsx,npy))
+if(allocated(b))then
+ if(any(shape(b).ne.[2*(nz-1),nsx,npy])) deallocate(b)
+endif
+if(.not.allocated(b)) allocate(b(2*(nz-1),nsx,npy))
+if(allocated(ac))then
+ if(any(shape(ac).ne.[nz,nsx,npy])) deallocate(ac)
+endif
+if(.not.allocated(ac)) allocate(ac(nz,nsx,npy))
+if(allocated(bc))then
+ if(any(shape(bc).ne.[nz,nsx,npy])) deallocate(bc)
+endif
+if(.not.allocated(bc)) allocate(bc(nz,nsx,npy))
 
 !trasnpose the z-row and make them even symmetric (no R2R in cuFFT)
 !$acc data copyin(uin) create(a,b,ac,bc) copyout(uout)
@@ -225,7 +239,7 @@ if(aliasing.eq.1)then
  uout(1:nsx,floor(2.0*real(nz)/3.0)+1:nz,1:npy,2)=0.0d0
 endif
 !$acc end kernels
-deallocate(a,b,ac,bc)
+! a,b,ac,bc kept allocated for the next call
 #endif
 
 end subroutine

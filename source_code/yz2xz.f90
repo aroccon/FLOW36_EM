@@ -64,7 +64,7 @@ numel=ngxx*ngyy*ngzz*2
 nb=int(numel,8)
 
 ! pack: block j holds the x slab of rank j (offset i0, cnt points), all local y and z
-!$acc parallel loop collapse(5) private(i0,cnt,ib)
+!$acc parallel loop collapse(5) private(i0,cnt,ib) async(1)
 do j=0,nycpu-1
  do c=1,2
   do ky=1,npyy
@@ -89,6 +89,9 @@ enddo
 ! are posted together (no sequential rounds); the own block (j=me) is not sent, the unpack
 ! kernel takes it directly from a2a_send. Point-to-point instead of mpi_alltoall: the collective
 ! would copy the own block (and possibly stage blocks) on the host with managed memory.
+! pack kernel (queue 1) must be complete before the buffers are sent; the unpack kernel
+! stays queued: the next FFT routine runs on the same queue
+!$acc wait(1)
 call mpi_comm_rank(cart_comm_dir(1),me,ierr)
 nreq=0
 !CUDA-aware MPI GPU-GPU communicaton (by default hpc-sdk is CUDA-aware)
@@ -107,7 +110,7 @@ enddo
 call mpi_waitall(nreq,req,mpi_statuses_ignore,ierr)
 
 ! unpack: block j holds the local x slab with the y points of rank j (offset i0, cnt points)
-!$acc parallel loop collapse(5) private(i0,cnt,ib)
+!$acc parallel loop collapse(5) private(i0,cnt,ib) async(1)
 do j=0,nycpu-1
  do c=1,2
   do ky=1,ngyy

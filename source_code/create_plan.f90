@@ -10,6 +10,7 @@ use fftw3
 #if openaccflag == 1
 use cufft
 use cufftplans
+use openacc
 #endif
 
 integer :: nsx,npz,npy
@@ -256,6 +257,15 @@ if (gerr.ne.0) write(*,*) "Error in cuFFT plan Z BWD:", gerr
 gerr=cufftCreate(cudaplan_z_bwd_1d)
 gerr=gerr+cufftPlan1d(cudaplan_z_bwd_1d,2*(nz-1),CUFFT_D2Z,1)
 if (gerr.ne.0) write(*,*) "Error in cuFFT plan Z BWD 1D:", gerr
+! 3D plans on the CUDA stream of OpenACC queue 1: the transforms run their kernels and cuFFT
+! asynchronously on that queue (ordered), with waits only before MPI and at the end
+gerr=cufftSetStream(cudaplan_x_fwd,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_x_bwd,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_y_fwd,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_y_bwd,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_z_fwd,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_z_bwd,acc_get_cuda_stream(1))
+if (gerr.ne.0) write(*,*) "Error in cuFFT set stream:", gerr
 #endif
 
 return
@@ -287,6 +297,7 @@ use fftw3
 #if openaccflag == 1
 use cufft
 use cufftplans
+use openacc
 #endif
 
 integer :: nsx,npz,npy
@@ -516,6 +527,14 @@ gerr=cufftCreate(cudaplan_z_bwd_fg)
 gerr=gerr+cufftPlanMany(cudaplan_z_bwd_fg,1,2*(npsiz-1),inembed,istride,idist,onembed,&
  &    ostride,odist,CUFFT_D2Z,nsx*npy)
 if (gerr.ne.0) write(*,*) "Error in cuFFT plan Z BWD FG:", gerr
+! 3D plans on the CUDA stream of OpenACC queue 1 (see create_plan)
+gerr=cufftSetStream(cudaplan_x_fwd_fg,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_x_bwd_fg,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_y_fwd_fg,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_y_bwd_fg,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_z_fwd_fg,acc_get_cuda_stream(1))
+gerr=gerr+cufftSetStream(cudaplan_z_bwd_fg,acc_get_cuda_stream(1))
+if (gerr.ne.0) write(*,*) "Error in cuFFT set stream FG:", gerr
 #endif
 
 return

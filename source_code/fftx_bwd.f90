@@ -50,7 +50,7 @@ ur=ur/dble(nx)
 
 #if openaccflag == 1
 !$acc data copyin(uc) create(wt) copyout(ur)
-!$acc kernels
+!$acc kernels async(1)
 if(aliasing.eq.1)then
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,1)=0.0d0
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,2)=0.0d0
@@ -60,10 +60,12 @@ wt(1:nx/2+1,1:npz,1:npy)=dcmplx(uc(1:nx/2+1,1:npz,1:npy,1),uc(1:nx/2+1,1:npz,1:n
 !$acc host_data use_device(wt,ur)
 gerr=gerr+cufftExecZ2D(cudaplan_x_bwd,wt,ur)
 !$acc end host_data
+!$acc wait(1)
 !$acc end data
-!$acc kernels
+!$acc kernels async(1)
 ur=ur/dble(nx)
 !$acc end kernels
+!$acc wait(1)
 #endif
 
 ! wt kept allocated for the next call
@@ -119,7 +121,7 @@ ur=ur/dble(nx)
 
 #if openaccflag == 1
 !$acc data copyin(uc) create(wt) copyout(ur)
-!$acc kernels
+!$acc kernels async(1)
 if(aliasing.eq.1)then
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,1)=0.0d0
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,2)=0.0d0
@@ -129,9 +131,10 @@ wt(1:nx/2+1,1:npz,1:npy)=dcmplx(uc(1:nx/2+1,1:npz,1:npy,1),uc(1:nx/2+1,1:npz,1:n
 !$acc host_data use_device(wt,ur)
 gerr=gerr+cufftExecZ2D(cudaplan_x_bwd_fg,wt,ur)
 !$acc end host_data
-!$acc kernels
+!$acc kernels async(1)
 ur=ur/dble(nx)
 !$acc end kernels
+!$acc wait(1)
 !$acc end data
 #endif
 

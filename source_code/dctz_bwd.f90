@@ -78,7 +78,7 @@ if(allocated(bc))then
 endif
 if(.not.allocated(bc)) allocate(bc(nz,nsx,npy))
 !$acc data copyin(uin) create(a,b,ac,bc) copyout(uout)
-!$acc kernels
+!$acc kernels async(1)
 ! dealiasing
 if(aliasing.eq.1)then
  uin(1:nsx,floor(2.0*real(nz)/3.0)+1:nz,1:npy,1)=0.0d0
@@ -87,7 +87,7 @@ endif
 uin(:,nz,:,1)=2.0d0*uin(:,nz,:,1)
 uin(:,nz,:,2)=2.0d0*uin(:,nz,:,2)
 !$acc end kernels
-!$acc kernels
+!$acc kernels async(1)
 do j=1,npy
  do i=1,nsx
   do k=1,nz-1
@@ -107,7 +107,7 @@ enddo
 !$acc host_data use_device(b,bc)
 gerr=gerr+cufftExecD2Z(cudaplan_z_bwd,b,bc)
 !$acc end host_data
-!$acc kernels
+!$acc kernels async(1)
  do j=1,npy
   do i=1,nsx
    do k=1,nz
@@ -117,6 +117,7 @@ gerr=gerr+cufftExecD2Z(cudaplan_z_bwd,b,bc)
   enddo
 enddo
 !$acc end kernels
+!$acc wait(1)
 !$acc end data
 ! a,b,ac,bc kept allocated for the next call
 #endif
@@ -196,7 +197,7 @@ if(allocated(bc))then
 endif
 if(.not.allocated(bc)) allocate(bc(nz,nsx,npy))
 !$acc data copyin(uin) create(a,b,ac,bc) copyout(uout)
-!$acc kernels
+!$acc kernels async(1)
 ! dealiasing
 if(aliasing.eq.1)then
  uin(1:nsx,floor(2.0*real(nz)/3.0)+1:nz,1:npy,1)=0.0d0
@@ -205,7 +206,7 @@ endif
 uin(:,nz,:,1)=2.0d0*uin(:,nz,:,1)
 uin(:,nz,:,2)=2.0d0*uin(:,nz,:,2)
 !$acc end kernels
-!$acc kernels
+!$acc kernels async(1)
 do j=1,npy
  do i=1,nsx
   do k=1,nz-1
@@ -225,7 +226,7 @@ enddo
 !$acc host_data use_device(b,bc)
 gerr=gerr+cufftExecD2Z(cudaplan_z_bwd_fg,b,bc)
 !$acc end host_data
-!$acc kernels
+!$acc kernels async(1)
  do j=1,npy
   do i=1,nsx
    do k=1,nz
@@ -235,6 +236,7 @@ gerr=gerr+cufftExecD2Z(cudaplan_z_bwd_fg,b,bc)
   enddo
 enddo
 !$acc end kernels
+!$acc wait(1)
 !$acc end data
 ! a,b,ac,bc kept allocated for the next call
 #endif

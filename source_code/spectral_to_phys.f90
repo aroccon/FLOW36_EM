@@ -30,7 +30,7 @@ dims(2)=nycpu
 
 call stage_alloc(s1,spx,nz,spy)
 ! copy: dctz_bwd modifies its input (dealiasing, last mode), uc must be preserved
-!$acc kernels
+!$acc kernels async(1)
 s1=uc
 !$acc end kernels
 u=>s1
@@ -186,7 +186,7 @@ dims(2)=nycpu
 
 call stage_alloc(s1,spxpsi,npsiz,spypsi)
 ! copy: dctz_bwd_fg modifies its input (dealiasing, last mode), uc must be preserved
-!$acc kernels
+!$acc kernels async(1)
 s1=uc
 !$acc end kernels
 u=>s1

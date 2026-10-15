@@ -105,6 +105,14 @@ the phase field are skipped (identical result). 8 nodes: 450 -> 414 ms.
 `velocity`), set at the end of `solver`, reset where `u,v,w` are overwritten without dealiasing
 (`save_flow_comm`, `write_failure`, `statistics`); `.false.` at start/restart.
 
+### Asynchronous transforms: `create_plan.f90`, FFT/DCT routines, transposes, `spectral_to_phys.f90`
+Inside the transforms (normal and `_fg`) all kernels run on OpenACC queue 1 (`async(1)`) and the
+3D cuFFT plans on the same CUDA stream (`cufftSetStream(plan,acc_get_cuda_stream(1))` in
+`create_plan`): same operations in the same order, no synchronization after each kernel.
+`!$acc wait(1)` only before `!$acc end data`, at the end of each FFT/DCT routine and before the
+MPI exchange of the transposes (the unpack kernel stays queued, the next FFT routine is on the same
+queue). Callers still see synchronous transforms. The 1D plans (`*_1d`) are unchanged.
+
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and
 free-slip at both walls): one `parallel loop collapse(2)` over (i,j) with the sum over k in

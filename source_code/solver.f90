@@ -102,11 +102,17 @@ NVTX_END
 #endif  
 
 ! transform variables back to physical space and perform dealiasing
+! with the phase field, sterm_ch (all phicorflag models 0-8) has already computed u,v,w from the
+! same uc,vc,wc with the same dealiasing, and the phase-field update does not change them:
+! the transforms are skipped (identical result)
+#if (phiflag == 1 && phicorflag >= 0 && phicorflag <= 8)
+#else
 NVTX_START("velocity to phys",2)
 call spectral_to_phys(uc,u,1)
 call spectral_to_phys(vc,v,1)
 call spectral_to_phys(wc,w,1)
 NVTX_END
+#endif
 
 !conformation tensor equation
 #if polflag == 1  

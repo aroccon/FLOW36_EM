@@ -566,6 +566,7 @@ subroutine write_output(u,nt,namevar)
     call spectral_to_phys(uc,u,0)
     call spectral_to_phys(vc,v,0)
     call spectral_to_phys(wc,w,0)
+    uvw_phys=.false.
     call write_output_recovery(u,'u    ')
     call write_output_recovery(v,'v    ')
     call write_output_recovery(w,'w    ')

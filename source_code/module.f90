@@ -46,6 +46,10 @@ module velocity
  double precision, allocatable :: wa2(:,:,:), wa3(:,:,:)
  double precision, allocatable, dimension(:,:,:,:) :: sgradpx,sgradpy,sIdiag
  double precision, allocatable, dimension(:,:,:) :: forx,fory,forz
+ ! .true. when u,v,w hold spectral_to_phys(uc/vc/wc,.,1) of the current uc,vc,wc: set at the end of
+ ! solver, reset by every routine that overwrites u,v,w differently (output, statistics); sterm_ch
+ ! skips its velocity transforms when it is .true. (first step after start/restart: .false.)
+ logical :: uvw_phys=.false.
 end module velocity
 
 

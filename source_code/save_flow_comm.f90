@@ -32,6 +32,7 @@ character(len=12) :: namevar
     namevar = 'v'
     call write_output(v, i, namevar)
     call spectral_to_phys(wc, w, 0)
+    uvw_phys=.false.
     namevar = 'w'
     call write_output(w, i, namevar)
 #    if phiflag == 1
@@ -152,6 +153,7 @@ character(len=5) :: namevar
     namevar = 'v'
     call write_output(v, i, namevar) 
     call spectral_to_phys(wc, w, 0)
+    uvw_phys=.false.
     namevar = 'w'
     call write_output(w, i, namevar)
 #    if phiflag == 1

@@ -64,7 +64,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(convf(nx,fpz,fpy))
@@ -87,7 +87,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -102,7 +102,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -185,7 +185,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(convf(nx,fpz,fpy))
@@ -213,7 +213,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -234,7 +234,7 @@ phiny=a1f
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -396,7 +396,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinx(nx,fpz,fpy))
 !$acc kernels
@@ -423,7 +423,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phiny(nx,fpz,fpy))
 !$acc kernels
@@ -442,7 +442,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinz(nx,fpz,fpy))
 !$acc kernels
@@ -634,7 +634,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(convf(nx,fpz,fpy))
@@ -662,7 +662,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -682,7 +682,7 @@ phiny=a1f
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -870,7 +870,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(convf(nx,fpz,fpy))
@@ -898,7 +898,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -918,7 +918,7 @@ phiny=a1f
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 !$acc parallel loop collapse(3)
@@ -1081,7 +1081,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinx(nx,fpz,fpy))
 !$acc kernels
@@ -1108,7 +1108,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phiny(nx,fpz,fpy))
 !$acc kernels
@@ -1127,7 +1127,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinz(nx,fpz,fpy))
 !$acc kernels
@@ -1312,7 +1312,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinx(nx,fpz,fpy))
 !$acc kernels
@@ -1339,7 +1339,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phiny(nx,fpz,fpy))
 !$acc kernels
@@ -1358,7 +1358,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 allocate(phinz(nx,fpz,fpy))
 !$acc kernels
@@ -1543,7 +1543,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(phinx(nx,fpz,fpy))
@@ -1571,7 +1571,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(phiny(nx,fpz,fpy))
@@ -1591,7 +1591,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 allocate(phinz(nx,fpz,fpy))
@@ -1714,7 +1714,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(uc,u,1)
+if(.not.uvw_phys) call spectral_to_phys(uc,u,1)
 call spectral_to_phys(a1,a1f,1)
 
 
@@ -1738,7 +1738,7 @@ do j=1,spy
   enddo
 enddo
 
-call spectral_to_phys(vc,v,1)
+if(.not.uvw_phys) call spectral_to_phys(vc,v,1)
 call spectral_to_phys(a1,a1f,1)
 
 
@@ -1754,7 +1754,7 @@ enddo
 ! w*(d phi /dz)
 call dz(phic,a1)
 
-call spectral_to_phys(wc,w,1)
+if(.not.uvw_phys) call spectral_to_phys(wc,w,1)
 call spectral_to_phys(a1,a1f,1)
 
 

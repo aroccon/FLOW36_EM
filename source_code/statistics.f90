@@ -229,6 +229,7 @@ endif
 call spectral_to_phys(uc,u,0)
 call spectral_to_phys(vc,v,0)
 call spectral_to_phys(wc,w,0)
+uvw_phys=.false.
 
 
 #if mean == 1

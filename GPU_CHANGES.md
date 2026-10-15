@@ -101,6 +101,9 @@ Search for host code also with array syntax, not only `do` loops. Step 1.38-1.63
 With the phase field, `sterm_ch` (every `phicorflag` model 0-8) already transforms `uc,vc,wc` to
 `u,v,w` with `aliasing=1` and the phase-field update does not change them: the 3 transforms after
 the phase field are skipped (identical result). 8 nodes: 450 -> 414 ms.
+`sterm_ch` itself reuses `u,v,w` from the end of the previous step: flag `uvw_phys` (module
+`velocity`), set at the end of `solver`, reset where `u,v,w` are overwritten without dealiasing
+(`save_flow_comm`, `write_failure`, `statistics`); `.false.` at start/restart.
 
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and

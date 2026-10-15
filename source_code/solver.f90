@@ -426,6 +426,8 @@ NVTX_START("velocity to phys",2)
     w_fg=w
 #endif
 #endif
+! u,v,w = transforms of the final uc,vc,wc (aliasing=1): reused by sterm_ch at the next step
+uvw_phys=.true.
 NVTX_END
 NVTX_END
 

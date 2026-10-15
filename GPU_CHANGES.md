@@ -24,7 +24,8 @@ This file is the reference for porting the same changes to the official FLOW36 r
 |------------------------------------------------------------|-------------------|-------------------|
 | Before the polymer/phase-field fixes                       | ~60 s             |                   |
 | After (batched polymer Helmholtz, phase-field loops on GPU)| 1.3 s             | 0.77 s (84% efficiency) |
-| + Saramito loops, whole-array updates, `_fg` transforms on GPU | **0.78 s**   | **0.45 s** (87% efficiency) |
+| + Saramito loops, whole-array updates, `_fg` transforms on GPU | 0.78 s       | 0.45 s (87% efficiency) |
+| + no duplicate u,v,w transforms after the phase field      |                   | **0.414 s**       |
 
 512^3, single phase: 150 ms per step on 1 node and on 2 nodes (no speed-up from the second node).
 UCX protocol tables (`UCX_PROTO_INFO`) confirm GPUDirect RDMA between nodes (`rc_verbs`,
@@ -95,6 +96,11 @@ gravity, body force, pressure gradient, `sphi`, `pols*visr`) ran on the host: wr
 `!$acc kernels`. `sterm_ch`: stray `!$acc end kernels` (meant as `!$acc kernels`) fixed.
 Search for host code also with array syntax, not only `do` loops. Step 1.38-1.63 s -> 1.06-1.20 s
 (profiled); 0.78 s without profiling on 16 GPUs (was 1.3 s).
+
+### Duplicate transforms: `solver.f90`
+With the phase field, `sterm_ch` (every `phicorflag` model 0-8) already transforms `uc,vc,wc` to
+`u,v,w` with `aliasing=1` and the phase-field update does not change them: the 3 transforms after
+the phase field are skipped (identical result). 8 nodes: 450 -> 414 ms.
 
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and

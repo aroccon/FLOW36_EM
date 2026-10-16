@@ -80,7 +80,7 @@ endif
 if(.not.allocated(bc)) allocate(bc(nz,nsx,npy))
 !trasnpose the z-row and make them even symmetric (no R2R in cuFFT)
 !$acc data copyin(uin) create(a,b,ac,bc) copyout(uout)
-!$acc kernels async(1)
+!$acc kernels
 do j=1,npy
  do i=1,nsx
   do k=1,nz-1
@@ -100,7 +100,7 @@ enddo
 !$acc host_data use_device(b,bc)
 gerr=gerr+cufftExecD2Z(cudaplan_z_fwd,b,bc)
 !$acc end host_data
-!$acc kernels async(1)
+!$acc kernels
 do j=1,npy
   do i=1,nsx
    do k=1,nz
@@ -110,7 +110,7 @@ do j=1,npy
   enddo
 enddo
 !$acc end kernels
-!$acc kernels async(1)
+!$acc kernels
 uout(:,nz,:,1)=0.5d0*uout(:,nz,:,1)
 uout(:,nz,:,2)=0.5d0*uout(:,nz,:,2)
 !dealiasing
@@ -119,7 +119,6 @@ if(aliasing.eq.1)then
  uout(1:nsx,floor(2.0*real(nz)/3.0)+1:nz,1:npy,2)=0.0d0
 endif
 !$acc end kernels
-!$acc wait(1)
 !$acc end data
 ! a,b,ac,bc kept allocated for the next call
 #endif
@@ -200,7 +199,7 @@ if(.not.allocated(bc)) allocate(bc(nz,nsx,npy))
 
 !trasnpose the z-row and make them even symmetric (no R2R in cuFFT)
 !$acc data copyin(uin) create(a,b,ac,bc) copyout(uout)
-!$acc parallel loop collapse(2) async(1)
+!$acc parallel loop collapse(2) async
 do j=1,npy
  do i=1,nsx
   do k=1,nz-1
@@ -213,13 +212,14 @@ do j=1,npy
   enddo
  enddo
 enddo
+!$acc wait
 !$acc host_data use_device(a,ac)
  gerr=gerr+cufftExecD2Z(cudaplan_z_fwd_fg,a,ac)
 !$acc end host_data
 !$acc host_data use_device(b,bc)
 gerr=gerr+cufftExecD2Z(cudaplan_z_fwd_fg,b,bc)
 !$acc end host_data
-!$acc kernels async(1)
+!$acc kernels
  do j=1,npy
   do i=1,nsx
    do k=1,nz
@@ -229,9 +229,8 @@ gerr=gerr+cufftExecD2Z(cudaplan_z_fwd_fg,b,bc)
   enddo
 enddo
 !$acc end kernels
-!$acc wait(1)
 !$acc end data
-!$acc kernels async(1)
+!$acc kernels
 uout(:,nz,:,1)=0.5d0*uout(:,nz,:,1)
 uout(:,nz,:,2)=0.5d0*uout(:,nz,:,2)
 !dealiasing
@@ -241,7 +240,6 @@ if(aliasing.eq.1)then
 endif
 !$acc end kernels
 ! a,b,ac,bc kept allocated for the next call
-!$acc wait(1)
 #endif
 
 end subroutine

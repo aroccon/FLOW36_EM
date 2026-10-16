@@ -26,8 +26,7 @@ This file is the reference for porting the same changes to the official FLOW36 r
 | After (batched polymer Helmholtz, phase-field loops on GPU)| 1.3 s             | 0.77 s (84% efficiency) |
 | + Saramito loops, whole-array updates, `_fg` transforms on GPU | 0.78 s       | 0.45 s (87% efficiency) |
 | + no duplicate u,v,w transforms after the phase field      |                   | 0.414 s           |
-| + `sterm_ch` reuses u,v,w (`uvw_phys`)                      |                   | 0.406-0.408 s     |
-| + asynchronous transforms (queue 1)                         |                   | **0.40 s**        |
+| + `sterm_ch` reuses u,v,w (`uvw_phys`)                      |                   | **0.406-0.408 s** |
 
 512^3, single phase: 150 ms per step on 1 node and on 2 nodes (no speed-up from the second node).
 UCX protocol tables (`UCX_PROTO_INFO`) confirm GPUDirect RDMA between nodes (`rc_verbs`,
@@ -106,14 +105,6 @@ the phase field are skipped (identical result). 8 nodes: 450 -> 414 ms.
 `sterm_ch` itself reuses `u,v,w` from the end of the previous step: flag `uvw_phys` (module
 `velocity`), set at the end of `solver`, reset where `u,v,w` are overwritten without dealiasing
 (`save_flow_comm`, `write_failure`, `statistics`); `.false.` at start/restart.
-
-### Asynchronous transforms: `create_plan.f90`, FFT/DCT routines, transposes, `spectral_to_phys.f90`
-Inside the transforms (normal and `_fg`) all kernels run on OpenACC queue 1 (`async(1)`) and the
-3D cuFFT plans on the same CUDA stream (`cufftSetStream(plan,acc_get_cuda_stream(1))` in
-`create_plan`): same operations in the same order, no synchronization after each kernel.
-`!$acc wait(1)` only before `!$acc end data`, at the end of each FFT/DCT routine and before the
-MPI exchange of the transposes (the unpack kernel stays queued, the next FFT routine is on the same
-queue). Callers still see synchronous transforms. The 1D plans (`*_1d`) are unchanged.
 
 ### Boundary sums: `calculate_var.f90`
 Commit `7fe84e3`. The four blocks computing `a11,a12,fr1,fc1` / `a21,a22,fr2,fc2` (no-slip and
@@ -208,5 +199,8 @@ Things to check in the official version: whether it has the same host loops (com
 - Multi-node scaling at 512^3 single phase: overlap the transposes with computation or batch
   several fields per transpose (fewer, larger messages). Possible small gain without code
   changes: `UCX_TLS=rc_x,...` (`rc_mlx5` instead of `rc_verbs`).
+- Asynchronous transforms (kernels and cuFFT on OpenACC queue 1, waits only before MPI and at
+  the end; commit `9c23a75`) were tried and reverted: ~1% faster (0.40 s vs 0.406 s on 8 nodes),
+  but a production run crashed after ~6 h. Not worth the risk.
 - Not yet optimized: `_fg` solvers (`helmholtz_fg`, surfactant only), `helmholtz_red`, asynchronous
   OpenACC regions (one `cuStreamSynchronize` per region), batching several fields per transform.

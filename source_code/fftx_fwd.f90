@@ -52,7 +52,7 @@ endif
 !$acc host_data use_device(u,wt)
 gerr=gerr+cufftExecD2Z(cudaplan_x_fwd,u,wt)
 !$acc end host_data
-!$acc kernels async(1)
+!$acc kernels
 uc(1:nx/2+1,1:npz,1:npy,1)=dble(wt(1:nx/2+1,1:npz,1:npy))
 uc(1:nx/2+1,1:npz,1:npy,2)=aimag(wt(1:nx/2+1,1:npz,1:npy))
 if(aliasing.eq.1)then
@@ -60,7 +60,6 @@ if(aliasing.eq.1)then
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,2)=0.0d0
 endif
 !$acc end kernels
-!$acc wait(1)
 !$acc end data
 #endif
 
@@ -118,7 +117,7 @@ endif
 !$acc host_data use_device(u,wt)
 gerr=gerr+cufftExecD2Z(cudaplan_x_fwd_fg,u,wt)
 !$acc end host_data
-!$acc kernels async(1)
+!$acc kernels
 uc(1:nx/2+1,1:npz,1:npy,1)=dble(wt(1:nx/2+1,1:npz,1:npy))
 uc(1:nx/2+1,1:npz,1:npy,2)=aimag(wt(1:nx/2+1,1:npz,1:npy))
 if(aliasing.eq.1)then
@@ -126,7 +125,6 @@ if(aliasing.eq.1)then
  uc(floor(2.0/3.0*real(nx/2+1))+1:nx/2+1,1:npz,1:npy,2)=0.0d0
 endif
 !$acc end kernels
-!$acc wait(1)
 !$acc end data
 #endif
 
